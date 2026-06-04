@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conn->query("INSERT INTO system_logs (log_message) VALUES ('$log_msg')");
 
         // 7. Logik hala tuju selepas berjaya
-        echo "<script>alert('Register successful!'); window.location.href='customer/cust_home.php';</script>";
+        echo "<script>alert('Register successful!'); window.location.href='../Customer/cust_home.php';</script>";
         exit();
 
     } else {

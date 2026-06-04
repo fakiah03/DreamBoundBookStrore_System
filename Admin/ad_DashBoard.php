@@ -632,11 +632,11 @@ $logs_result = $conn->query("SELECT * FROM system_logs ORDER BY created_at DESC 
             </div>
 
             <ul class="nav-links">
-                <li class="active"><a href="ad_DashBoard.php"><i class="fas fa-chart-line"></i> DASHBOARD STATUS</a></li>
-                <li><a href="ad_OrderInfo.php"><i class="fas fa-shopping-cart"></i> ORDER INFORMATION</a></li>
-                <li><a href="ad_ManageBook.php"><i class="fas fa-book"></i> MANAGE BOOK</a></li>
-                <li><a href="ad_CustomerInfo.php"><i class="fas fa-users"></i> CUSTOMER INFORMATION</a></li>
-                <li><a href="ad_Settings.php"><i class="fas fa-sliders-h"></i> SETTING</a></li>
+                <li class="active"><a href="../Admin/ad_DashBoard.php"><i class="fas fa-chart-line"></i> DASHBOARD STATUS</a></li>
+                <li><a href="../Admin/ad_OrderInfo.php"><i class="fas fa-shopping-cart"></i> ORDER INFORMATION</a></li>
+                <li><a href="../Admin/ad_ManageBook.php"><i class="fas fa-book"></i> MANAGE BOOK</a></li>
+                <li><a href="../Admin/ad_CustomerInfo.php"><i class="fas fa-users"></i> CUSTOMER INFORMATION</a></li>
+                <li><a href="../Admin/ad_Settings.php"><i class="fas fa-sliders-h"></i> SETTING</a></li>
             </ul>
 
             <div class="logout-container">

@@ -32,9 +32,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // 3. Logik hala tuju / redirect berdasarkan peranan (Role)
             if ($user['role'] == 'admin') {
-                echo "<script>alert('Welcome Admin!'); window.location.href='Admin/ad_DashBoard.php';</script>";
+                echo "<script>alert('Welcome Admin!'); window.location.href='../Admin/ad_DashBoard.php';</script>";
             } else {
-                echo "<script>alert('Login successful!'); window.location.href='cust_home.php';</script>";
+                echo "<script>alert('Login successful!'); window.location.href='../Customer/cust_home.php';</script>";
             }
             exit();
             
@@ -346,7 +346,7 @@ $conn->close();
                 <div class="links-container">
                     <a href="#" class="forgot-pass">Forgot Password?</a>
                     <p class="signup-text">
-                        New to Dreambound? <a href="Admin/signup.php" class="signup-link">Sign up here</a>
+                        New to Dreambound? <a href="signup.php" class="signup-link">Sign up here</a>
                     </p>
                 </div>
             </form>

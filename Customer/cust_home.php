@@ -4,7 +4,7 @@ session_start();
 
 // Semak jika pengguna belum log masuk, tendang ke laman login
 if (!isset($_SESSION['user_id'])) {
-    header("Location: Auth/login.php");
+    header("Location: ../Auth/login.php");
     exit();
 }
 
@@ -13,7 +13,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest';
 
 // 2. SAMBUNGAN PANGKALAN DATA (DATABASE)
 // Sila pastikan path fail db_connect.php ini betul mengikut struktur folder anda
-include('config/db_connect.php'); 
+include('../db.php'); 
 
 // 3. PROSES FUNGSI CARIAN (SEARCH)
 $search = '';
@@ -387,13 +387,13 @@ $result = mysqli_query($conn, $query);
             </div>
 
             <nav class="menu">
-                <a href="cust_home.php" class="menu-item active"><i class="fas fa-th-large"></i> HOME</a>
-                <a href="cust_cart.php" class="menu-item"><i class="fas fa-shopping-bag"></i> CART</a>
-                <a href="cust_orders.php" class="menu-item"><i class="fas fa-receipt"></i> ORDERS</a>
-                <a href="cust_settings.php" class="menu-item"><i class="fas fa-sliders-h"></i> SETTINGS</a>
+                <a href="../Customer/cust_home.php" class="menu-item active"><i class="fas fa-th-large"></i> HOME</a>
+                <a href="../Customer/cust_cart.php" class="menu-item"><i class="fas fa-shopping-bag"></i> CART</a>
+                <a href="../Customer/cust_orders.php" class="menu-item"><i class="fas fa-receipt"></i> ORDERS</a>
+                <a href="../Customer/cust_settings.php" class="menu-item"><i class="fas fa-sliders-h"></i> SETTINGS</a>
             </nav>
 
-            <button class="logout-btn" onclick="location.href='../Auth/logout.php'"><i class="fas fa-sign-out-alt"></i> LOG OUT</button>
+            <button class="logout-btn" onclick="location.href='../logout.php'"><i class="fas fa-sign-out-alt"></i> LOG OUT</button>
         </aside>
 
         <main class="content">
@@ -401,7 +401,7 @@ $result = mysqli_query($conn, $query);
                 <h1>Welcome Back!</h1>
                 <p>Discover our carefully curated selection of books across all genres</p>
                 
-                <form action="cust_home.php" method="GET" class="search-container">
+                <form action="../Customer/cust_home.php" method="GET" class="search-container">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" name="search" placeholder="Search by title, author or genre..." class="search-input" value="<?php echo htmlspecialchars($search); ?>">
                 </form>
@@ -420,14 +420,14 @@ $result = mysqli_query($conn, $query);
                             ?>
                             <div class="book-item">
                                 <div class="book-image-wrapper">
-                                    <img src="../img/<?php echo htmlspecialchars($book['image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>">
+                                    <img src="../<?php echo !empty($book['book_img']) ? $book['book_img'] : 'img/default-book.jpg'; ?>" alt="Cover">
                                 </div>
                                 <h3><?php echo htmlspecialchars($book['title']); ?></h3>
                                 <p class="author"><?php echo htmlspecialchars($book['author']); ?></p>
                                 <div class="book-footer">
                                     <span class="price">RM <?php echo number_format($book['price'], 2); ?></span>
                                     
-                                    <form action="add_to_cart.php" method="POST" style="margin: 0; padding: 0;">
+                                    <form action="../Customer/add_to_cart.php" method="POST" style="margin: 0; padding: 0;">
                                         <input type="hidden" name="book_id" value="<?php echo $book['id']; ?>">
                                         <button type="submit" class="action-btn" title="Add to Cart">
                                             <i class="fas fa-plus"></i>
