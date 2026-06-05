@@ -184,11 +184,11 @@ $books = $conn->query("SELECT * FROM books ORDER BY id DESC");
             </div>
 
             <ul class="nav-links">
-                <li><a href="ad_DashBoard.php"><i class="fas fa-chart-line"></i> DASHBOARD STATUS</a></li>
-                <li><a href="ad_OrderInfo.php"><i class="fas fa-shopping-cart"></i> ORDER INFORMATION</a></li>
-                <li class="active"><a href="ad_ManageBook.php"><i class="fas fa-book"></i> MANAGE BOOK</a></li>
-                <li><a href="ad_CustomerInfo.php"><i class="fas fa-users"></i> CUSTOMER INFORMATION</a></li>
-                <li><a href="ad_settings.php"><i class="fas fa-sliders-h"></i> SETTING</a></li>
+                <li><a href="/DreamBoundBookStrore_system/Admin/ad_DashBoard.php"><i class="fas fa-chart-line"></i> DASHBOARD STATUS</a></li>
+                <li><a href="/DreamBoundBookStrore_system/Admin/ad_OrderInfo.php"><i class="fas fa-shopping-cart"></i> ORDER INFORMATION</a></li>
+                <li class="active"><a href="/DreamBoundBookStrore_system/Admin/ad_ManageBook.php"><i class="fas fa-book"></i> MANAGE BOOK</a></li>
+                <li><a href="/DreamBoundBookStrore_system/Admin/ad_CustomerInfo.php"><i class="fas fa-users"></i> CUSTOMER INFORMATION</a></li>
+                <li><a href="/DreamBoundBookStrore_system/Admin/ad_settings.php"><i class="fas fa-sliders-h"></i> SETTING</a></li>
             </ul>
 
             <div class="logout-container">
