@@ -13,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = $_POST['password'];
     $confirmPassword = $_POST['confirmPassword'];
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
 
     // 2. SEMAK KATA LALUAN SEPADAN
     if ($password !== $confirmPassword) {
@@ -36,17 +37,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $checkEmail->close(); // Tutup statement semak email setelah selesai digunakan
 
-    // 5. QUERY UNTUK MASUKKAN PENGGUNA BAHARU
-    $sql_register = "INSERT INTO users (fullname, email, password, role) VALUES ('$fullname', '$email', '$hashed_password', 'customer')";
+    // =========================================================
+    // TAMBAHAN: JANA CUSTOMER ID STR SECARA AUTOMATIK & TIER
+    // =========================================================
+    $res_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'customer'");
+    $row_count = $res_count->fetch_assoc();
+    $next_id_num = $row_count['total'] + 1;
+    
+    // Menghasilkan format: #CUST-0001, #CUST-0002, dan seterusnya
+    $customer_id_str = "#CUST-" . str_pad($next_id_num, 4, "0", STR_PAD_LEFT);
+    $membership_tier = "Regular"; // Status ahli lalai untuk pendaftaran baharu
+    // =========================================================
+
+    // 5. QUERY UNTUK MASUKKAN PENGGUNA BAHARU (DIUBAH UNTUK SESUAIKAN LAJUR DATABASE TERKINI)
+    $sql_register = "INSERT INTO users (customer_id_str, fullname, email, password, phone, role, membership_tier) 
+                     VALUES ('$customer_id_str', '$fullname', '$email', '$hashed_password', '$phone', 'customer', '$membership_tier')";
 
     if ($conn->query($sql_register) === TRUE) {
         
-        // 6. REKOD PENDAFTARAN BAHARU KE JADUAL SYSTEM_LOGS (Untuk Live Logs Dashboard)
-        $log_msg = "New user $fullname ($email) has registered.";
+        // 6. REKOD PENDAFTARAN BAHARU KE JADUAL SYSTEM_LOGS (Diubah sedikit mesej log untuk memapar ID baharu)
+        $log_msg = "New user $fullname ($email) has registered with ID $customer_id_str.";
         $conn->query("INSERT INTO system_logs (log_message) VALUES ('$log_msg')");
 
-        // 7. Logik hala tuju selepas berjaya
-        echo "<script>alert('Register successful!'); window.location.href='../Customer/cust_home.php';</script>";
+        // 7. Logik hala tuju selepas berjaya (Ditambah paparan ID pada alert box)
+        echo "<script>alert('Register successful! Your Customer ID is $customer_id_str'); window.location.href='../Customer/cust_home.php';</script>";
         exit();
 
     } else {
@@ -143,9 +157,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .brand-showcase h1 {
-            font-size: 3.8rem;
+            font-size: 3.5rem;
             line-height: 1.1;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             letter-spacing: 1px;
         }
 
@@ -154,18 +168,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .brand-showcase p {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 500;
             color: #e0e0e0;
         }
 
-        /* Sign Up Card Premium */
+        /* Sign Up Card - Saiz Dioptimumkan Lebih Kemas */
         .signup-card {
             background-color: rgba(14, 44, 70, 0.85); 
-            width: 420px;
-            padding: 35px 40px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            width: 390px;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
             text-align: center;
             color: #ffffff;
             border: 3px solid #FC9D01;
@@ -173,55 +187,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .signup-card h2 {
-            font-size: 2.2rem;
-            margin-bottom: 20px;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
             color: #FC9D01;
             letter-spacing: 1px;
         }
 
         .form-group {
             text-align: left;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             width: 100%;
         }
 
         label {
             display: block;
-            margin-bottom: 6px;
-            font-size: 1.1rem;
+            margin-bottom: 4px;
+            font-size: 1rem;
             color: #FDF5E6;
         }
 
         input {
             width: 100%;
-            padding: 10px 18px;
-            border-radius: 25px;
+            padding: 8px 15px;
+            border-radius: 20px;
             border: 2px solid transparent;
             background-color: #FDF5E6;
             color: #0E2C46;
             outline: none;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
         }
 
         input:focus {
             border-color: #FC9D01;
-            box-shadow: 0 0 10px rgba(252, 157, 1, 0.5);
+            box-shadow: 0 0 8px rgba(252, 157, 1, 0.5);
         }
 
         /* Create Account Button Dinamik */
         .create-btn {
             width: 85%;
-            padding: 12px;
-            margin-top: 15px;
-            border-radius: 30px;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 25px;
             border: 3px solid #FC9D01;
             background-color: #FC9D01;
             color: #0E2C46;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 4px 4px 0px #FDF5E6;
+            box-shadow: 3px 3px 0px #FDF5E6;
             transition: all 0.2s ease;
         }
 
@@ -230,17 +244,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-color: #0E2C46;
             color: #0E2C46;
             transform: translateY(-2px);
-            box-shadow: 5px 5px 0px #FC9D01;
+            box-shadow: 4px 4px 0px #FC9D01;
         }
 
-        /* Google Login */
+        /* Divider Kosmetik */
         .divider {
             display: flex;
             align-items: center;
             text-align: center;
-            margin: 20px 0 15px 0;
+            margin: 12px 0 10px 0;
             color: #FDF5E6;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .divider::before, 
@@ -254,26 +268,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 0 10px;
         }
 
+        /* Google Button - Diperkemas */
         .google-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            padding: 11px;
+            padding: 8px;
             background-color: #ffffff;
             color: #0E2C46;
             border: 2px solid #0E2C46;
-            border-radius: 25px;
-            font-size: 1rem;
+            border-radius: 20px;
+            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .google-btn img {
-            width: 20px;
-            margin-right: 10px;
+            width: 18px;
+            margin-right: 8px;
         }
 
         .google-btn:hover {
@@ -283,7 +298,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .login-text {
             color: #ffffff;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .login-link {
@@ -299,7 +314,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         @media (max-width: 900px) {
             .container { justify-content: center; padding: 20px; }
             .brand-showcase { display: none; }
-            .signup-card { width: 100%; max-width: 400px; padding: 30px 25px; }
+            .signup-card { width: 100%; max-width: 380px; padding: 20px 20px; }
         }
     </style>
 </head>
@@ -327,6 +342,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" placeholder="johndoe@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text" id="phone" name="phone" placeholder="e.g. 0123456789" required>
                 </div>
 
                 <div class="form-group">
@@ -360,5 +380,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
     
-    </body>
+</body>
 </html>

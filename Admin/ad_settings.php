@@ -1,3 +1,87 @@
+<?php
+session_start();
+require_once '../db.php'; // Sambungan ke database anda
+
+// 1. SEKATAN KESELAMATAN ADMIN
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../Auth/login.php");
+    exit();
+}
+
+$admin_id = $_SESSION['user_id'];
+$alert_message = "";
+
+// Semak data default menggunakan store_status untuk mengelakkan ralat 'Unknown column id'
+$check_empty = $conn->query("SELECT store_status FROM store_settings LIMIT 1");
+if (!$check_empty || $check_empty->num_rows == 0) {
+    $conn->query("INSERT INTO store_settings (id, store_status, maintenance_mode, ship_semenanjung, ship_borneo, store_region) VALUES (1, 'open', 'inactive', 4.50, 8.50, 'Malaysia (MYR - RM)')");
+}
+
+// 3. PROSES BORANG HANTARAN (POST)
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    // TINDAKAN 1: KEMAS KINI PROFIL ADMIN
+    if (isset($_POST['action_profile'])) {
+        $fullname = mysqli_real_escape_string($conn, trim($_POST['adminName']));
+        $email = mysqli_real_escape_string($conn, trim($_POST['adminEmail']));
+        $curr_pass = trim($_POST['currPassword']);
+        $new_pass = trim($_POST['newPassword']);
+        
+        if (!empty($fullname) && !empty($email)) {
+            // Jika admin mahu menukar password
+            if (!empty($new_pass)) {
+                // Semak password lama terlebih dahulu
+                $pass_check = $conn->query("SELECT password FROM users WHERE id = '$admin_id'");
+                $user_data = $pass_check->fetch_assoc();
+                
+                if (password_verify($curr_pass, $user_data['password'])) {
+                    $hashed_new_pass = password_hash($new_pass, PASSWORD_DEFAULT);
+                    $conn->query("UPDATE users SET fullname = '$fullname', email = '$email', password = '$hashed_new_pass' WHERE id = '$admin_id'");
+                    $alert_message = "Administrative Account Sync Completed!\\nProfile for \\\"" . $fullname . "\\\" and security password updated securely.";
+                } else {
+                    $alert_message = "Error: Current password verification failed!";
+                }
+            } else {
+                // Jika tidak tukar password, kemas kini nama dan email sahaja
+                $conn->query("UPDATE users SET fullname = '$fullname', email = '$email' WHERE id = '$admin_id'");
+                $_SESSION['fullname'] = $fullname; // Kemas kini sesi nama admin
+                $alert_message = "Administrative Account Sync Completed!\\nProfile for \\\"" . $fullname . "\\\" has been updated securely.";
+            }
+        }
+    }
+
+    // TINDAKAN 2: KEMAS KINI OPERASI STOR & SHIPPING RATE
+    if (isset($_POST['action_store'])) {
+        $store_status = isset($_POST['storeStatus']) ? 'open' : 'closed';
+        $maintenance_mode = isset($_POST['maintenanceStatus']) ? 'active' : 'inactive';
+        $ship_semenanjung = mysqli_real_escape_string($conn, $_POST['shipSemenanjung']);
+        $ship_borneo = mysqli_real_escape_string($conn, $_POST['shipBorneo']);
+        $store_region = mysqli_real_escape_string($conn, $_POST['storeRegion']);
+        
+        // Kemas kini baris rekod pertama
+        $update_store = $conn->query("UPDATE store_settings SET 
+            store_status = '$store_status', 
+            maintenance_mode = '$maintenance_mode', 
+            ship_semenanjung = '$ship_semenanjung', 
+            ship_borneo = '$ship_borneo', 
+            store_region = '$store_region' 
+            WHERE 1 LIMIT 1");
+            
+        if ($update_store) {
+            $status_txt = ($store_status === 'open') ? 'OPEN' : 'CLOSED';
+            $maint_txt = ($maintenance_mode === 'active') ? 'ACTIVE' : 'INACTIVE';
+            $alert_message = "Store Rules Deployed Successfully!\\nStore Status: " . $status_txt . "\\nMaintenance Mode: " . $maint_txt;
+        }
+    }
+}
+
+// 4. AMBIL DATA TERKINI DARI DATABASE (Telah dibuang lajur 'username' yang tiada dalam db)
+$admin_query = $conn->query("SELECT fullname, email FROM users WHERE id = '$admin_id'");
+$admin_info = $admin_query->fetch_assoc();
+
+$store_query = $conn->query("SELECT * FROM store_settings LIMIT 1");
+$store_info = $store_query->fetch_assoc();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,9 +89,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dreambound Bookstore - Setting</title>
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Englebert&display=swap" rel="stylesheet">
@@ -101,7 +183,6 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
-        /* Highlight Setting Menu */
         .nav-links li.active a,
         .nav-links li a:hover {
             background: #FC9D01;
@@ -156,7 +237,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 25px;
-            align-items: start; /* Mengelakkan heretan tinggi kad yang tidak sekata */
+            align-items: start;
         }
 
         .settings-card {
@@ -178,7 +259,6 @@
             padding-bottom: 8px;
         }
 
-        /* Form Controls */
         .settings-form {
             display: flex;
             flex-direction: column;
@@ -278,7 +358,6 @@
             background-color: #FC9D01;
         }
 
-        /* Action Buttons */
         .btn-save {
             background: #0E2C46;
             color: white;
@@ -300,13 +379,11 @@
             background: #1a446c;
             transform: translateY(-2px);
         }
-
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- SIDEBAR NAVIGATION -->
         <nav class="sidebar">
             <div class="profile-section">
                 <img src="../img/logo1.png" alt="Dreambound Logo" class="logo-img">
@@ -314,21 +391,16 @@
                 <p class="subtitle">BOOKSTORE</p>
                 <div class="user-info">
                     <p><strong>ADMIN PORTAL</strong></p>
-                    <p>JAMES BUBUYA</p>
+                    <p><?php echo htmlspecialchars(strtoupper($admin_info['fullname'] ?? 'ADMIN')); ?></p>
                 </div>
             </div>
 
             <ul class="nav-links">
-                <!-- fas fa-chart-line is for Dashboard Status icon-->
-                <li><a href="ad_DashBoard.html"><i class="fas fa-chart-line"></i> DASHBOARD STATUS</a></li>
-                <!-- fas fa-shopping-cart is for Order Information icon-->
-                <li><a href="ad_OrderInfo.html"><i class="fas fa-shopping-cart"></i> ORDER INFORMATION</a></li>
-                <!-- fas fa-book is for Manage Book icon-->
-                <li><a href="ad_ManageBook.html"><i class="fas fa-book"></i> MANAGE BOOK</a></li>
-                <!-- fas fa-users is for Customer Information icon-->
-                <li><a href="ad_CustomerInfo.html"><i class="fas fa-users"></i> CUSTOMER INFORMATION</a></li>
-                <!-- fas fa-sliders-h is for Setting icon-->
-                <li class="active"><a href="ad_Settings.html"><i class="fas fa-sliders-h"></i> SETTING</a></li>
+                <li><a href="ad_DashBoard.php"><i class="fas fa-chart-line"></i> DASHBOARD STATUS</a></li>
+                <li><a href="ad_OrderInfo.php"><i class="fas fa-shopping-cart"></i> ORDER INFORMATION</a></li>
+                <li><a href="ad_ManageBook.php"><i class="fas fa-book"></i> MANAGE BOOK</a></li>
+                <li><a href="ad_CustomerInfo.php"><i class="fas fa-users"></i> CUSTOMER INFORMATION</a></li>
+                <li class="active"><a href="ad_settings.php"><i class="fas fa-sliders-h"></i> SETTING</a></li>
             </ul>
 
             <div class="logout-container">
@@ -336,87 +408,82 @@
             </div>
         </nav>
 
-        <!-- MAIN CONTENT AREA -->
         <main class="main-content">
             <h1 class="page-title">System Settings Portal</h1>
 
             <div class="settings-grid">
-                <!-- PANEL KIRI: TETAPAN PROFIL ADMIN & SECURITY -->
                 <section class="settings-card">
                     <h3><i class="fas fa-user-cog"></i> Profile & Administrative Credentials</h3>
-                    <form class="settings-form" onsubmit="saveProfile(event)">
+                    <form class="settings-form" action="" method="POST">
+                        <input type="hidden" name="action_profile" value="1">
+
                         <div class="form-group">
-                            <label for="adminUsername">Admin Username (Account ID)</label>
-                            <input type="text" id="adminUsername" value="JAMES_BUBUYA99" disabled>
+                            <label for="adminUsername">Admin Account ID (Email)</label>
+                            <input type="text" id="adminUsername" value="<?php echo htmlspecialchars($admin_info['email'] ?? 'admin@dreambound.com'); ?>" disabled>
                         </div>
                         <div class="form-group">
                             <label for="adminName">Full Name</label>
-                            <input type="text" id="adminName" value="JAMES BUBUYA" required>
+                            <input type="text" id="adminName" name="adminName" value="<?php echo htmlspecialchars($admin_info['fullname'] ?? ''); ?>" required>
                         </div>
                         <div class="form-group">
                             <label for="adminEmail">Email Address</label>
-                            <input type="email" id="adminEmail" value="jamesbubuya@dreambound.com" required>
+                            <input type="email" id="adminEmail" name="adminEmail" value="<?php echo htmlspecialchars($admin_info['email'] ?? ''); ?>" required>
                         </div>
                         <div class="form-group">
                             <label for="currPassword">Current Password</label>
-                            <input type="password" id="currPassword" placeholder="••••••••">
+                            <input type="password" id="currPassword" name="currPassword" placeholder="••••••••">
                         </div>
                         <div class="form-group">
                             <label for="newPassword">New Security Password</label>
-                            <input type="password" id="newPassword" placeholder="Enter new password if changing">
+                            <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password if changing">
                         </div>
                         <button type="submit" class="btn-save"><i class="fas fa-user-shield"></i> Update Admin Credentials</button>
                     </form>
                 </section>
 
-                <!-- PANEL KANAN: TETAPAN OPERASI KEDAI BUKU (STOREFRONT SETTINGS) -->
                 <section class="settings-card">
                     <h3><i class="fas fa-store-alt"></i> Bookstore Operation Rules</h3>
-                    <form class="settings-form" onsubmit="saveStoreSettings(event)">
+                    <form class="settings-form" action="" method="POST">
+                        <input type="hidden" name="action_store" value="1">
                         
-                        <!-- Toggle Kedai Buka/Tutup -->
                         <div class="toggle-group">
                             <div class="toggle-info">
                                 <h4>Bookstore Online Status</h4>
                                 <p>Enable or disable client-side ordering system.</p>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" id="storeStatus" checked>
+                                <input type="checkbox" name="storeStatus" id="storeStatus" <?php echo (isset($store_info['store_status']) && $store_info['store_status'] === 'open') ? 'checked' : ''; ?>>
                                 <span class="slider"></span>
-                                <span class="sr-only">Store Status Toggle</span>
                             </label>
                         </div>
 
-                        <!-- Toggle Maintenance Mode -->
                         <div class="toggle-group">
                             <div class="toggle-info">
                                 <h4>System Maintenance Mode</h4>
                                 <p>Locks website storefront for backend upgrades.</p>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" id="maintenanceStatus">
+                                <input type="checkbox" name="maintenanceStatus" id="maintenanceStatus" <?php echo (isset($store_info['maintenance_mode']) && $store_info['maintenance_mode'] === 'active') ? 'checked' : ''; ?>>
                                 <span class="slider"></span>
-                                <span class="sr-only">Maintenance Mode</span>
                             </label>
                         </div>
 
-                        <!-- Pilihan Input Kos Penghantaran Asas -->
                         <div class="form-group">
                             <label for="shipSemenanjung">Base Shipping Rate - Peninsular (RM)</label>
-                            <input type="number" id="shipSemenanjung" step="0.10" value="4.50" required>
+                            <input type="number" id="shipSemenanjung" name="shipSemenanjung" step="0.01" value="<?php echo htmlspecialchars($store_info['ship_semenanjung'] ?? '4.50'); ?>" required>
                         </div>
 
                         <div class="form-group">
                             <label for="shipBorneo">Base Shipping Rate - Sabah/Sarawak (RM)</label>
-                            <input type="number" id="shipBorneo" step="0.10" value="8.50" required>
+                            <input type="number" id="shipBorneo" name="shipBorneo" step="0.01" value="<?php echo htmlspecialchars($store_info['ship_borneo'] ?? '8.50'); ?>" required>
                         </div>
 
                         <div class="form-group">
                             <label for="storeRegion">Default Store Currency & Operations Region</label>
-                            <select id="storeRegion">
-                                <option>Malaysia (MYR - RM)</option>
-                                <option>Singapore (SGD - $)</option>
-                                <option>Brunei (BND - $)</option>
+                            <select id="storeRegion" name="storeRegion">
+                                <option value="Malaysia (MYR - RM)" <?php echo (isset($store_info['store_region']) && $store_info['store_region'] === 'Malaysia (MYR - RM)') ? 'selected' : ''; ?>>Malaysia (MYR - RM)</option>
+                                <option value="Singapore (SGD - $)" <?php echo (isset($store_info['store_region']) && $store_info['store_region'] === 'Singapore (SGD - $)') ? 'selected' : ''; ?>>Singapore (SGD - $)</option>
+                                <option value="Brunei (BND - $)" <?php echo (isset($store_info['store_region']) && $store_info['store_region'] === 'Brunei (BND - $)') ? 'selected' : ''; ?>>Brunei (BND - $)</option>
                             </select>
                         </div>
 
@@ -428,28 +495,13 @@
     </div>
 
     <script>
-        // Simpan Tetapan Profil Admin
-        function saveProfile(event) {
-            event.preventDefault();
-            const name = document.getElementById('adminName').value;
-            alert("Administrative Account Sync Completed!\nProfile for \"" + name + "\" has been updated securely.");
-        }
-
-        // Simpan Tetapan Operasi Kedai
-        function saveStoreSettings(event) {
-            event.preventDefault();
-            const isOpen = document.getElementById('storeStatus').checked;
-            const isMaintenance = document.getElementById('maintenanceStatus').checked;
-            
-            let statusMsg = "Store Status: " + (isOpen ? "OPEN" : "CLOSED") + 
-                            "\nMaintenance Mode: " + (isMaintenance ? "ACTIVE" : "INACTIVE");
-                            
-            alert("Store Rules Deployed Successfully!\n" + statusMsg);
-        }
+        <?php if (!empty($alert_message)): ?>
+            alert("<?php echo $alert_message; ?>");
+        <?php endif; ?>
 
         function confirmLogout() {
             if (confirm("Are you sure you want to log out from the admin platform?")) {
-                window.location.href = "login.html";
+                window.location.href = "../logout.php";
             }
         }
     </script>

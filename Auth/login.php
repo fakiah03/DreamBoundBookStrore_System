@@ -54,9 +54,7 @@ $conn->close();
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dreambound Bookstore - Log in</title>
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Englebert&display=swap" rel="stylesheet">
@@ -132,9 +130,9 @@ $conn->close();
         }
 
         .brand-showcase h1 {
-            font-size: 3.8rem;
+            font-size: 3.5rem;
             line-height: 1.1;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             letter-spacing: 1px;
         }
 
@@ -143,17 +141,18 @@ $conn->close();
         }
 
         .brand-showcase p {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 500;
             color: #e0e0e0;
         }
 
+        /* Login Card - Disesuaikan saiz sama dengan signup.php */
         .login-card {
             background-color: rgba(14, 44, 70, 0.85); 
-            width: 420px;
-            padding: 40px;
-            border-radius: 24px; 
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); 
+            width: 390px;
+            padding: 25px 30px;
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); 
             text-align: center;
             color: #ffffff;
             border: 3px solid #FC9D01;
@@ -161,53 +160,53 @@ $conn->close();
         }
 
         .login-card h2 {
-            font-size: 2.2rem;
-            margin-bottom: 25px;
+            font-size: 1.8rem;
+            margin-bottom: 18px;
             color: #FC9D01;
             letter-spacing: 1px;
         }
 
         .form-group {
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
+            margin-bottom: 4px;
+            font-size: 1rem;
             color: #FDF5E6;
         }
 
         input {
             width: 100%;
-            padding: 12px 20px;
-            border-radius: 25px;
+            padding: 8px 15px;
+            border-radius: 20px;
             border: 2px solid transparent;
             background-color: #FDF5E6; 
             color: #0E2C46;
             outline: none;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
         }
         
         input:focus {
             border-color: #FC9D01;
-            box-shadow: 0 0 10px rgba(252, 157, 1, 0.5);
+            box-shadow: 0 0 8px rgba(252, 157, 1, 0.5);
         }
 
         .login-btn {
             width: 85%; 
-            padding: 12px;
-            margin-top: 15px;
-            border-radius: 30px;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 25px;
             border: 3px solid #FC9D01;
             background-color: #FC9D01;
             color: #0E2C46;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 4px 4px 0px #FDF5E6;
+            box-shadow: 3px 3px 0px #FDF5E6;
             transition: all 0.2s ease;
         }
 
@@ -216,16 +215,16 @@ $conn->close();
             border-color: #0E2C46;
             color: #0E2C46;
             transform: translateY(-2px);
-            box-shadow: 5px 5px 0px #FC9D01;
+            box-shadow: 4px 4px 0px #FC9D01;
         }
 
         .divider {
             display: flex;
             align-items: center;
             text-align: center;
-            margin: 25px 0 15px 0;
+            margin: 15px 0 12px 0;
             color: #FDF5E6;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .divider::before, 
@@ -244,21 +243,21 @@ $conn->close();
             align-items: center;
             justify-content: center;
             width: 100%;
-            padding: 11px;
+            padding: 8px;
             background-color: #ffffff;
             color: #0E2C46;
             border: 2px solid #0E2C46;
-            border-radius: 25px;
-            font-size: 1rem;
+            border-radius: 20px;
+            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .google-btn img {
-            width: 20px;
-            margin-right: 10px;
+            width: 18px;
+            margin-right: 8px;
         }
 
         .google-btn:hover {
@@ -267,15 +266,15 @@ $conn->close();
         }
 
         .links-container {
-            margin-top: 15px;
-            font-size: 0.95rem;
+            margin-top: 10px;
+            font-size: 0.9rem;
         }
 
         .forgot-pass {
             color: #b0b0b0;
             text-decoration: none;
             display: block; 
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             transition: 0.3s;
         }
 
@@ -300,7 +299,7 @@ $conn->close();
         @media (max-width: 900px) {
             .container { justify-content: center; padding: 20px; }
             .brand-showcase { display: none; }
-            .login-card { width: 100%; max-width: 400px; }
+            .login-card { width: 100%; max-width: 380px; padding: 20px 20px; }
         }
     </style>
 </head>
@@ -318,17 +317,14 @@ $conn->close();
         <div class="login-card">
             <h2>Welcome Back</h2>
             
-            <!-- DITUKAR: action digosongkan supaya submit ke fail ini sendiri -->
             <form action="" method="POST" id="loginForm">
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <!-- TAMBAH: name="email" supaya PHP boleh baca input -->
                     <input type="email" id="email" name="email" placeholder="johndoe@example.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <!-- TAMBAH: name="password" supaya PHP boleh baca input -->
                     <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 </div>
 

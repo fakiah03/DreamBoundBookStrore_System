@@ -1,16 +1,15 @@
 <?php
 session_start();
-require_once '../db.php'; // Hubungkan ke fail database anda
+require_once '../db.php'; // 
 
-// 1. SEKATAN KESELAMATAN: Pastikan hanya Admin yang sah boleh masuk
+// 1. SECURITY RESTRICTION: Ensure only authorized Admins can enter this page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: Auth/login.php");
     exit();
 }
 
-// ==========================================
 // 2. QUERY UNTUK ROW 1: 4 KAD STATISTIK UTAMA (DIURUSKAN MENGIKUT DB ANDA)
-// ==========================================
+
 // Kad 1: Total Sales (Menggunakan lajur total_amount)
 $res_sales = $conn->query("SELECT SUM(total_amount) as total FROM orders");
 $row_sales = $res_sales->fetch_assoc();
@@ -32,9 +31,7 @@ $row_users = $res_users->fetch_assoc();
 $total_customers = $row_users['total'] ?? 0;
 
 
-// ==========================================
 // 3. QUERY UNTUK ROW 2: SEGMENTASI BUKU (INSIGHTS)
-// ==========================================
 // Best Seller: Ambil 2 buku yang jualan (sold_qty) paling tinggi
 $best_result = $conn->query("SELECT * FROM books ORDER BY sold_qty DESC LIMIT 2");
 
@@ -45,9 +42,8 @@ $low_stock_result = $conn->query("SELECT * FROM books WHERE stock <= 10 ORDER BY
 $worst_result = $conn->query("SELECT * FROM books ORDER BY sold_qty ASC LIMIT 2");
 
 
-// ==========================================
 // 4. QUERY UNTUK ROW 3: STRUKTUR GRAFIK ANALYTICS & KPI (Menggunakan created_at)
-// ==========================================
+
 $wk1_res = $conn->query("SELECT SUM(total_amount) as total FROM orders WHERE WEEK(created_at, 1) = WEEK(NOW(), 1) - 3");
 $wk1_sales = $wk1_res->fetch_assoc()['total'] ?? 0;
 
@@ -66,9 +62,8 @@ $kpi_percentage = ($total_sales > 0) ? ($total_sales / $kpi_target) * 100 : 0;
 if ($kpi_percentage > 100) $kpi_percentage = 100; // Maksimum bar 100%
 
 
-// ==========================================
 // 5. QUERY UNTUK DINAMIKKAN VOUCHERS, USERS & REVIEWS
-// ==========================================
+
 // Ambil senarai baucar aktif
 $vouchers_result = $conn->query("SELECT * FROM vouchers WHERE status = 'active' LIMIT 2");
 
@@ -80,6 +75,9 @@ $reviews_result = $conn->query("SELECT r.*, u.fullname, b.title FROM reviews r
 
 // Ambil log sistem dari jadual system_logs
 $logs_result = $conn->query("SELECT * FROM system_logs ORDER BY created_at DESC LIMIT 3");
+
+// Ambil senarai kakitangan aktif (clerk & manager) untuk dipaparkan di panel bawah
+$staff_list_result = $conn->query("SELECT fullname, role FROM users WHERE role IN ('clerk', 'manager', 'admin') ORDER BY role DESC");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -525,7 +523,7 @@ $logs_result = $conn->query("SELECT * FROM system_logs ORDER BY created_at DESC 
         /* Tables/Lists styling inside panels */
         .data-list {
             list-style: none;
-            max-height: 130px;
+            max-height: 160px;
             overflow-y: auto;
         }
 
@@ -632,11 +630,11 @@ $logs_result = $conn->query("SELECT * FROM system_logs ORDER BY created_at DESC 
             </div>
 
             <ul class="nav-links">
-                <li class="active"><a href="../Admin/ad_DashBoard.php"><i class="fas fa-chart-line"></i> DASHBOARD STATUS</a></li>
-                <li><a href="../Admin/ad_OrderInfo.php"><i class="fas fa-shopping-cart"></i> ORDER INFORMATION</a></li>
-                <li><a href="../Admin/ad_ManageBook.php"><i class="fas fa-book"></i> MANAGE BOOK</a></li>
-                <li><a href="../Admin/ad_CustomerInfo.php"><i class="fas fa-users"></i> CUSTOMER INFORMATION</a></li>
-                <li><a href="../Admin/ad_Settings.php"><i class="fas fa-sliders-h"></i> SETTING</a></li>
+                <li class="active"><a href="ad_DashBoard.php"><i class="fas fa-chart-line"></i> DASHBOARD STATUS</a></li>
+                <li><a href="ad_OrderInfo.php"><i class="fas fa-shopping-cart"></i> ORDER INFORMATION</a></li>
+                <li><a href="ad_ManageBook.php"><i class="fas fa-book"></i> MANAGE BOOK</a></li>
+                <li><a href="ad_CustomerInfo.php"><i class="fas fa-users"></i> CUSTOMER INFORMATION</a></li>
+                <li><a href="ad_settings.php"><i class="fas fa-sliders-h"></i> SETTING</a></li>
             </ul>
 
             <div class="logout-container">
@@ -811,7 +809,10 @@ $logs_result = $conn->query("SELECT * FROM system_logs ORDER BY created_at DESC 
                 <div class="panel-box">
                     <h3><i class="fas fa-user-shield"></i> System Staff Roles & Access Authorization</h3>
                     <form method="POST" action="process_staff.php" class="voucher-form staff-form">
-                        <input type="text" name="staff_name" placeholder="Staff Name" required>
+                        <input type="text" name="staff_name" placeholder="Full Name" required>
+                        <input type="email" name="staff_email" placeholder="Email Address (e.g. staff@dreambound.com)" required>
+                        <input type="text" name="staff_phone" placeholder="Contact Number" required>
+                        <input type="password" name="staff_password" placeholder="Create Access Password" required>
                         <label for="staff-role">Assign Role</label>
                         <select id="staff-role" name="staff_role">
                             <option value="clerk">Stock Clerk</option>
@@ -820,14 +821,22 @@ $logs_result = $conn->query("SELECT * FROM system_logs ORDER BY created_at DESC 
                         <button type="submit" class="btn-action staff-btn">Authorize New Member</button>
                     </form>
                     <ul class="data-list">
-                        <li class="data-item">
-                            <span>Ahmad Subari</span>
-                            <span class="role-tag clerk">Stock Clerk</span>
-                        </li>
-                        <li class="data-item">
-                            <span>James Bubuya</span>
-                            <span class="role-tag super">Super Admin</span>
-                        </li>
+                        <?php if ($staff_list_result && $staff_list_result->num_rows > 0): ?>
+                            <?php while($staff = $staff_list_result->fetch_assoc()): ?>
+                                <li class="data-item">
+                                    <span><?php echo htmlspecialchars($staff['fullname']); ?></span>
+                                    <?php if ($staff['role'] === 'admin'): ?>
+                                        <span class="role-tag super">Super Admin</span>
+                                    <?php elseif ($staff['role'] === 'manager'): ?>
+                                        <span class="role-tag manager">Manager</span>
+                                    <?php else: ?>
+                                        <span class="role-tag clerk">Stock Clerk</span>
+                                    <?php endif; ?>
+                                </li>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <li class="data-item">Tiada data kakitangan ditemui.</li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </section>
@@ -868,7 +877,6 @@ $logs_result = $conn->query("SELECT * FROM system_logs ORDER BY created_at DESC 
 
     <script>
     function muatTurunLogLive() {
-        // Kita panggil fail php yang kita buat tadi
         fetch('get_live_logs.php')
             .then(response => {
                 if (!response.ok) {
@@ -884,16 +892,13 @@ $logs_result = $conn->query("SELECT * FROM system_logs ORDER BY created_at DESC 
             })
             .catch(error => {
                 console.error('Masalah Log:', error);
-                // Jika error, kita paparkan mesej ralat dalam kotak terminal
                 document.getElementById('log-box').innerHTML = 
                     '<div class="log-line" style="color:red;">[ERROR]: ' + error.message + '</div>';
             });
     }
 
-    // Jalankan fungsi sebaik sahaja halaman dimuatkan
     document.addEventListener('DOMContentLoaded', function() {
         muatTurunLogLive();
-        // Auto-update setiap 3 saat
         setInterval(muatTurunLogLive, 3000);
     });
 
