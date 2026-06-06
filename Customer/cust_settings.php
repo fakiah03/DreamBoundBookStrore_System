@@ -99,9 +99,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <style>
         :root {
             --primary-blue: #0A2647;
-            --accent-orange: #FC9D01; 
+            --accent-orange: #F29400;
             --bg-gradient: linear-gradient(135deg, #0A2647 0%, #144272 100%);
-            --form-bg: #FFFDF4;
         }
 
         * { 
@@ -142,101 +141,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .profile {
-            text-align: center;
-            width: 100%;
-            margin-bottom: 40px;
-        }
+        .profile { text-align: center; width: 100%; margin-bottom: 40px; }
 
         .profile-circle { 
-            width: 85px; 
-            height: 85px; 
+            width: 85px; height: 85px; 
             background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
             border-radius: 50%; 
             border: 2px solid var(--accent-orange); 
             margin: 0 auto 15px auto; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
-        .profile-circle i { 
-            font-size: 32px;
-            color: #ffffff;
-        }
+        .profile-circle i { font-size: 32px; color: #ffffff; }
 
         .profile h2 { 
-            font-size: 18px; 
-            font-weight: normal;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
+            font-size: 18px; font-weight: normal; color: #ffffff;
+            text-transform: uppercase; letter-spacing: 1.5px;
         }
 
-        .menu { 
-            width: 100%; 
+        .menu { width: 100%; }
+
+         .menu ul {
+            list-style: none; /* Buang titik hitam */
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        .menu li {
+            width: 100%;
         }
 
         .menu-item { 
-            display: flex; 
-            align-items: center; 
-            color: rgba(255, 255, 255, 0.6); 
-            text-decoration: none; 
-            padding: 18px 24px; 
-            margin-bottom: 12px; 
-            border-radius: 20px; 
-            font-size: 22px; 
-            letter-spacing: 0.5px;
+            display: flex; align-items: center; color: rgba(255, 255, 255, 0.6); 
+            text-decoration: none; padding: 18px 24px; margin-bottom: 12px; 
+            border-radius: 20px; font-size: 22px; letter-spacing: 0.5px;
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .menu-item i {
-            margin-right: 20px;
-            font-size: 22px;
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-        }
+        .menu-item i { margin-right: 20px; font-size: 22px; transition: transform 0.3s ease; }
 
-        .menu-item:hover:not(.active) {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.15); 
-        }
-
-        .menu-item:hover i {
-            transform: scale(1.2); 
-        }
+        .menu-item:hover { color: #ffffff; background: rgba(255, 255, 255, 0.05); }
 
         .menu-item.active { 
-            background: #FC9D01; 
-            color: #0A2647;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-            font-weight: bold;
+            background: #FC9D01; color: var(--primary-blue);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25); font-weight: bold;
         }
 
         .logout-btn { 
-            margin-top: auto; 
-            background: rgba(255, 255, 255, 0.02);
-            color: #ff6b6b; 
-            border: 1px solid rgba(255, 77, 77, 0.25); 
-            padding: 16px 20px; 
-            cursor: pointer; 
-            border-radius: 20px; 
-            width: 100%; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 18px;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
+            margin-top: auto; background: rgba(255, 255, 255, 0.02);
+            color: #ff6b6b; border: 1px solid rgba(255, 77, 77, 0.25); 
+            padding: 16px 20px; cursor: pointer; border-radius: 20px; 
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
+            font-size: 18px; letter-spacing: 0.5px; transition: all 0.3s ease;
         }
 
-        .logout-btn:hover {
-            background: #ff4d4d;
-            color: white;
-            box-shadow: 0 8px 20px rgba(255, 77, 77, 0.2);
-            border-color: transparent; 
-        }
+        .logout-btn:hover { background: #ff4d4d; color: white; box-shadow: 0 8px 20px rgba(255, 77, 77, 0.2); border-color: transparent; }
+
 
         .content { 
             flex: 1; 
@@ -413,19 +375,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
-    <div class="dashboard">
+   <div class="dashboard">
         <aside class="sidebar">
             <div class="profile">
                 <div class="profile-circle">
                     <i class="far fa-user"></i>
                 </div>
-                <h2>ACCOUNT</h2>
+                <h2><?php echo htmlspecialchars($fullname); ?></h2>
             </div>
             <nav class="menu">
-                <a href="cust_home.php" class="menu-item"><i class="fas fa-th-large"></i> HOME</a>
-                <a href="cust_cart.php" class="menu-item"><i class="fas fa-shopping-bag"></i> CART</a>
-                <a href="cust_orders.php" class="menu-item"><i class="fas fa-receipt"></i> ORDERS</a>
-                <a href="cust_settings.php" class="menu-item active"><i class="fas fa-sliders-h"></i> SETTINGS</a>
+                <ul>
+                    <li><a href="/DreamBoundBookStrore_system/Customer/cust_home.php" class="menu-item"><i class="fas fa-th-large"></i> HOME</a></li>
+                    <li><a href="/DreamBoundBookStrore_system/Customer/cust_cart.php" class="menu-item"><i class="fas fa-shopping-bag"></i> CART</a></li>
+                    <li><a href="/DreamBoundBookStrore_system/Customer/cust_orders.php" class="menu-item"><i class="fas fa-receipt"></i> ORDERS</a></li>
+                    <li><a href="/DreamBoundBookStrore_system/Customer/cust_settings.php" class="menu-item active"><i class="fas fa-sliders-h"></i> SETTINGS</a></li>
+                </ul>
             </nav>
             <button class="logout-btn" onclick="location.href='../Auth/logout.php'"><i class="fas fa-sign-out-alt"></i> LOG OUT</button>
         </aside>

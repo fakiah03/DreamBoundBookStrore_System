@@ -1,3 +1,47 @@
+<?php
+session_start();
+require_once '../db.php'; // Sambungan ke database
+
+// 1. SEKATAN KESELAMATAN: Pastikan pelanggan log masuk
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
+    header("Location: ../Auth/login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+$fullname = $_SESSION['fullname'] ?? 'Customer';
+
+// 2. AMBIL DATA PESANAN DARI DATABASE
+// NOTA: Kod ini mengandaikan anda mempunyai jadual `orders`, `order_items`, dan `books`.
+// Jika nama jadual anda berbeza, anda hanya perlu tukar nama jadual dalam SQL ini.
+$sql_orders = "
+    SELECT 
+        o.id AS order_id, 
+        b.title AS product, 
+        oi.price AS unit_price, 
+        oi.quantity, 
+        (oi.price * oi.quantity) AS total_price, 
+        o.status 
+    FROM orders o
+    JOIN order_items oi ON o.id = oi.order_id
+    JOIN books b ON oi.book_id = b.id
+    WHERE o.user_id = $user_id
+    ORDER BY o.created_at DESC
+";
+
+// Memastikan tiada ralat sekiranya jadual belum dibina
+$orders_list = [];
+try {
+    $result = $conn->query($sql_orders);
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $orders_list[] = $row;
+        }
+    }
+} catch (mysqli_sql_exception $e) {
+    // Abaikan jika jadual belum ada, ia akan memaparkan senarai kosong sahaja.
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,9 +53,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root {
+       :root {
             --primary-blue: #0A2647;
-            --accent-orange: #FC9D01; 
+            --accent-orange: #F29400;
             --bg-gradient: linear-gradient(135deg, #0A2647 0%, #144272 100%);
         }
 
@@ -51,104 +95,66 @@
             padding: 40px 24px; 
             color: white; 
             border-right: 1px solid rgba(255, 255, 255, 0.05);
-            flex-shrink: 0;
         }
 
-        .profile {
-            text-align: center;
-            width: 100%;
-            margin-bottom: 40px;
-        }
+        .profile { text-align: center; width: 100%; margin-bottom: 40px; }
 
         .profile-circle { 
-            width: 85px; 
-            height: 85px; 
+            width: 85px; height: 85px; 
             background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
             border-radius: 50%; 
             border: 2px solid var(--accent-orange); 
             margin: 0 auto 15px auto; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
-        .profile-circle i { 
-            font-size: 32px;
-            color: #ffffff;
-        }
+        .profile-circle i { font-size: 32px; color: #ffffff; }
 
         .profile h2 { 
-            font-size: 18px; 
-            font-weight: normal;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
+            font-size: 18px; font-weight: normal; color: #ffffff;
+            text-transform: uppercase; letter-spacing: 1.5px;
         }
 
-        .menu { 
-            width: 100%; 
+        .menu { width: 100%; }
+
+         .menu ul {
+            list-style: none; /* Buang titik hitam */
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        .menu li {
+            width: 100%;
         }
 
         .menu-item { 
-            display: flex; 
-            align-items: center; 
-            color: rgba(255, 255, 255, 0.6); 
-            text-decoration: none; 
-            padding: 18px 24px; 
-            margin-bottom: 12px; 
-            border-radius: 20px; 
-            font-size: 22px; 
-            letter-spacing: 0.5px;
+            display: flex; align-items: center; color: rgba(255, 255, 255, 0.6); 
+            text-decoration: none; padding: 18px 24px; margin-bottom: 12px; 
+            border-radius: 20px; font-size: 22px; letter-spacing: 0.5px;
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .menu-item i {
-            margin-right: 20px;
-            font-size: 22px;
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-        }
+        .menu-item i { margin-right: 20px; font-size: 22px; transition: transform 0.3s ease; }
 
-        .menu-item:hover:not(.active) {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.15); 
-        }
-
-        .menu-item:hover i {
-            transform: scale(1.2); 
-        }
+        .menu-item:hover { color: #ffffff; background: rgba(255, 255, 255, 0.05); }
 
         .menu-item.active { 
-            background: #FC9D01; 
-            color: #0A2647;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-            font-weight: bold;
+            background: #FC9D01; color: var(--primary-blue);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25); font-weight: bold;
         }
 
         .logout-btn { 
-            margin-top: auto; 
-            background: rgba(255, 255, 255, 0.02);
-            color: #ff6b6b; 
-            border: 1px solid rgba(255, 77, 77, 0.25); 
-            padding: 16px 20px; 
-            cursor: pointer; 
-            border-radius: 20px; 
-            width: 100%; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 18px;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
+            margin-top: auto; background: rgba(255, 255, 255, 0.02);
+            color: #ff6b6b; border: 1px solid rgba(255, 77, 77, 0.25); 
+            padding: 16px 20px; cursor: pointer; border-radius: 20px; 
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
+            font-size: 18px; letter-spacing: 0.5px; transition: all 0.3s ease;
         }
 
-        .logout-btn:hover {
-            background: #ff4d4d;
-            color: white;
-            box-shadow: 0 8px 20px rgba(255, 77, 77, 0.2);
-            border-color: transparent; 
-        }
+        .logout-btn:hover { background: #ff4d4d; color: white; box-shadow: 0 8px 20px rgba(255, 77, 77, 0.2); border-color: transparent; }
+
 
         /* MAIN CONTENT AREA */
         .content { 
@@ -235,27 +241,25 @@
             table-layout: fixed; 
         }
 
-        /* UPDATED: SMALLER & COMPACT TABLE HEADER DESIGN */
         .order-table th {
             position: sticky;
             top: 0;
             z-index: 10;
             background-color: #0A2647; 
             color: #ffffff;
-            padding: 12px 18px; /* Reduced vertical padding to make it smaller */
-            font-size: 17px; /* Made the text font size smaller and cleaner */
+            padding: 12px 18px; 
+            font-size: 17px; 
             font-weight: normal;
-            line-height: 1.2; /* Allows clear multi-line break formatting */
+            line-height: 1.2; 
             vertical-align: middle;
         }
 
-        /* Adjusted width sizes to avoid any cutting or ellipsis on status tags */
-        .order-table th:nth-child(1), .order-table td:nth-child(1) { width: 13%; } 
-        .order-table th:nth-child(2), .order-table td:nth-child(2) { width: 31%; } 
+        .order-table th:nth-child(1), .order-table td:nth-child(1) { width: 15%; } 
+        .order-table th:nth-child(2), .order-table td:nth-child(2) { width: 29%; } 
         .order-table th:nth-child(3), .order-table td:nth-child(3) { width: 12%; } 
         .order-table th:nth-child(4), .order-table td:nth-child(4) { width: 12%; } 
         .order-table th:nth-child(5), .order-table td:nth-child(5) { width: 14%; } 
-        .order-table th:nth-child(6), .order-table td:nth-child(6) { width: 18%; } /* Expanded Status column */
+        .order-table th:nth-child(6), .order-table td:nth-child(6) { width: 18%; } 
 
         .order-table td {
             padding: 16px 18px;
@@ -281,16 +285,16 @@
             margin-bottom: 10px;
         }
 
-        /* UPDATED: STATUS BADGES FULLY VISIBLE & NO CLIPPING */
         .status-badge {
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 15px;
             display: inline-block;
             text-align: center;
-            white-space: nowrap; /* Prevents text formatting from splitting onto 2 lines */
-            width: 100%; /* Spans evenly inside the wider column assignment */
+            white-space: nowrap; 
+            width: 100%; 
             max-width: 150px;
+            font-weight: bold;
         }
 
         .status-badge.delivered { background-color: #D1FAE5; color: #065F46; }
@@ -309,14 +313,16 @@
                 </div>
                 <h2><?php echo htmlspecialchars($fullname); ?></h2>
             </div>
-			
-			
+            
             <nav class="menu">
-                <a href="cust_home.php" class="menu-item"><i class="fas fa-th-large"></i> HOME</a>
-                <a href="cust_cart.html" class="menu-item"><i class="fas fa-shopping-bag"></i> CART</a>
-                <a href="cust_order.html" class="menu-item active"><i class="fas fa-receipt"></i> ORDERS</a>
-                <a href="cust_settings.html" class="menu-item"><i class="fas fa-sliders-h"></i> SETTINGS</a>
+                <ul>
+                    <li><a href="/DreamBoundBookStrore_system/Customer/cust_home.php" class="menu-item"><i class="fas fa-th-large"></i> HOME</a></li>
+                    <li><a href="/DreamBoundBookStrore_system/Customer/cust_cart.php" class="menu-item "><i class="fas fa-shopping-bag"></i> CART</a></li>
+                    <li><a href="/DreamBoundBookStrore_system/Customer/cust_orders.php" class="menu-item active "><i class="fas fa-receipt"></i> ORDERS</a></li>
+                    <li><a href="/DreamBoundBookStrore_system/Customer/cust_settings.php" class="menu-item"><i class="fas fa-sliders-h"></i> SETTINGS</a></li>
+                </ul>
             </nav>
+            
             <button class="logout-btn" onclick="location.href='../Auth/logout.php'"><i class="fas fa-sign-out-alt"></i> LOG OUT</button>
         </aside>
 
@@ -342,74 +348,38 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="data-row">
-                            <td>ORD-0421</td>
-                            <td>The Midnight Library</td>
-                            <td>RM 39.90</td>
-                            <td>2 Pcs</td>
-                            <td>RM 79.80</td>
-                            <td><span class="status-badge delivered">Order delivered</span></td>
-                        </tr>
-                        <tr class="data-row">
-                            <td>ORD-0832</td>
-                            <td>Atomic Habits</td>
-                            <td>RM 45.00</td>
-                            <td>1 Pcs</td>
-                            <td>RM 45.00</td>
-                            <td><span class="status-badge delivered">Order delivered</span></td>
-                        </tr>
-                        <tr class="data-row">
-                            <td>ORD-A611</td>
-                            <td>The Alchemist</td>
-                            <td>RM 35.50</td>
-                            <td>2 Pcs</td>
-                            <td>RM 71.00</td>
-                            <td><span class="status-badge transit">In transit</span></td>
-                        </tr>
-                        <tr class="data-row">
-                            <td>ORD-P200</td>
-                            <td>Digital Fortress</td>
-                            <td>RM 28.00</td>
-                            <td>1 Pcs</td>
-                            <td>RM 28.00</td>
-                            <td><span class="status-badge processing">Processing</span></td>
-                        </tr>
-                        <tr class="data-row">
-                            <td>ORD-B333</td>
-                            <td>Pride and Prejudice</td>
-                            <td>RM 35.00</td>
-                            <td>3 Pcs</td>
-                            <td>RM 105.00</td>
-                            <td><span class="status-badge transit">In transit</span></td>
-                        </tr>
-                        <tr class="data-row">
-                            <td>ORD-F711</td>
-                            <td>Learning Python</td>
-                            <td>RM 70.00</td>
-                            <td>1 Pcs</td>
-                            <td>RM 70.00</td>
-                            <td><span class="status-badge waiting">Waiting</span></td>
-                        </tr>
-                        <tr class="data-row">
-                            <td>ORD-0872</td>
-                            <td>The Gloyrage</td>
-                            <td>RM 22.00</td>
-                            <td>1 Pcs</td>
-                            <td>RM 22.00</td>
-                            <td><span class="status-badge waiting">Waiting</span></td>
-                        </tr>
-                        <tr class="data-row">
-                            <td>ORD-A233</td>
-                            <td>Mystery of the Spire</td>
-                            <td>RM 55.00</td>
-                            <td>1 Pcs</td>
-                            <td>RM 55.00</td>
-                            <td><span class="status-badge transit">In transit</span></td>
-                        </tr>
+                        <?php if (count($orders_list) > 0): ?>
+                            <?php foreach ($orders_list as $order): 
+                                // Tetapkan warna / class badge berdasarkan teks status di dalam database
+                                $status_db = strtolower($order['status']);
+                                $badge_class = 'waiting'; // Lalai
+                                
+                                if (strpos($status_db, 'deliver') !== false) {
+                                    $badge_class = 'delivered';
+                                } elseif (strpos($status_db, 'transit') !== false) {
+                                    $badge_class = 'transit';
+                                } elseif (strpos($status_db, 'process') !== false) {
+                                    $badge_class = 'processing';
+                                }
+                            ?>
+                                <tr class="data-row">
+                                    <td>ORD-<?php echo str_pad($order['order_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                    <td><?php echo htmlspecialchars($order['product']); ?></td>
+                                    <td>RM <?php echo number_format($order['unit_price'], 2); ?></td>
+                                    <td><?php echo htmlspecialchars($order['quantity']); ?> Pcs</td>
+                                    <td>RM <?php echo number_format($order['total_price'], 2); ?></td>
+                                    <td>
+                                        <span class="status-badge <?php echo $badge_class; ?>">
+                                            <?php echo htmlspecialchars(ucfirst($order['status'])); ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
 
-                        <tr id="noResultRow" class="no-result-row" >
+                        <tr id="noResultRow" class="no-result-row" style="<?php echo (count($orders_list) > 0) ? 'display: none;' : ''; ?>">
                             <td colspan="6">
-                                <i class="fas fa-search-minus"></i>
+                                <i class="fas fa-box-open"></i>
                                 We couldn't find any orders matching this information.
                             </td>
                         </tr>
