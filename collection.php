@@ -7,8 +7,8 @@ require_once 'db.php';
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $genre = isset($_GET['genre']) ? mysqli_real_escape_string($conn, $_GET['genre']) : 'all';
 
-// 3. BINA QUERY SQL SECARA DINAMIK
-// Kita hanya paparkan buku yang mempunyai stok sahaja
+// 3. Build the SQL query dynamically.
+// Only books with available stock are displayed.
 $query = "SELECT * FROM books WHERE stock > 0";
 
 if (!empty($search)) {
@@ -35,7 +35,6 @@ $books_result = $conn->query($query);
     <link href="https://fonts.googleapis.com/css2?family=Englebert&display=swap" rel="stylesheet">
 
     <style>
-        /* Menggunakan semua style asal milik collection.html anda */
         * {
             margin: 0;
             padding: 0;
@@ -131,7 +130,6 @@ $books_result = $conn->query($query);
         .hero h1 { font-size: 3rem; margin-bottom: 10px; color: #0E2C46; text-shadow: 1px 1px 2px rgba(255,255,255,0.6); }
         .hero p { color: #ffffff; font-size: 1.3rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
 
-        /* Form kontainer carian */
         .search-filter-container {
             display: flex;
             align-items: center;
@@ -183,7 +181,6 @@ $books_result = $conn->query($query);
             font-size: 0.9rem;
         }
 
-        /* Submit button untuk proses PHP */
         .btn-search-submit {
             background-color: #0E2C46;
             color: white;
@@ -338,14 +335,14 @@ $books_result = $conn->query($query);
     <script>
         let temporaryCartCount = 0;
 
-        // Simulasi fungsi tambah ke troli untuk Guest (Sebelum Login)
+        // Implement a simulated add-to-cart feature for guest users prior to login.
         function guestAddToCart(bookTitle) {
             temporaryCartCount++;
             document.getElementById('cartCount').textContent = temporaryCartCount;
             alert("Added to Guest Cart!\n\"" + bookTitle + "\" has been temporarily held. Please Sign In or Sign Up to complete your purchase order.");
         }
 
-        // Amaran klik troli sebelum login
+        // Display a warning if the cart is clicked before login.
         function viewCartAlert() {
             if(temporaryCartCount === 0) {
                 alert("Your cart is empty. Explore our collection and add books to get started!");

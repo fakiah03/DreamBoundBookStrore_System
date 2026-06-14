@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once '../db.php'; // Sambungan ke database
+require_once '../db.php';
 
-// 1. SEKATAN KESELAMATAN: Pastikan pelanggan log masuk
+// 1. SECURITY RESTRICTION: Ensure that the customer is logged in.
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
     header("Location: ../Auth/login.php");
     exit();
@@ -11,25 +11,25 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
 $user_id = $_SESSION['user_id'];
 $fullname = $_SESSION['fullname'] ?? 'Customer';
 
-// 2. PROSES TAMBAH KE TROLI (ADD TO CART / BUY NOW)
+// 2. PROCESS "ADD TO CART" OR "BUY NOW" ACTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['add_to_cart']) || isset($_POST['buy_now']))) {
     $book_id = intval($_POST['book_id']);
     $quantity = intval($_POST['quantity']);
 
-    // Semak adakah buku ini sudah ada dalam troli pengguna
+    // check if the book is already in the cart for this user
     $check_cart = $conn->query("SELECT id, quantity FROM cart WHERE user_id = $user_id AND book_id = $book_id");
     
     if ($check_cart && $check_cart->num_rows > 0) {
-        // Jika sudah ada, tambah kuantiti sahaja
+        // if already exists, update the quantity
         $cart_row = $check_cart->fetch_assoc();
         $new_qty = $cart_row['quantity'] + $quantity;
         $conn->query("UPDATE cart SET quantity = $new_qty WHERE id = " . $cart_row['id']);
     } else {
-        // Jika belum ada, masukkan sebagai rekod baharu
+        // if not in cart, insert new entry
         $conn->query("INSERT INTO cart (user_id, book_id, quantity) VALUES ($user_id, $book_id, $quantity)");
     }
 
-    // Jika tekan "Buy Now", terus bawa ke troli. Jika "Add to Cart", kekal di halaman ini.
+    // If "Buy Now" is clicked, redirect to cart. If "Add to Cart" is clicked, stay on this page.
     if (isset($_POST['buy_now'])) {
         header("Location: cust_cart.php");
     } else {
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['add_to_cart']) || is
     exit();
 }
 
-// 3. AMBIL SENARAI BUKU DARI DATABASE
+// 3. TAKE BOOK LIST FROM DATABASE
 $books_list = [];
 $books_query = $conn->query("SELECT * FROM books ORDER BY id DESC LIMIT 20");
 if ($books_query && $books_query->num_rows > 0) {
@@ -126,7 +126,7 @@ if ($books_query && $books_query->num_rows > 0) {
         .menu { width: 100%; }
 
         .menu ul {
-            list-style: none; /* Buang titik hitam */
+            list-style: none; 
             padding: 0;
             margin: 0;
             width: 100%;
@@ -364,7 +364,7 @@ if ($books_query && $books_query->num_rows > 0) {
                 <div class="book-list">
                     <?php if (count($books_list) > 0): ?>
                         <?php foreach ($books_list as $book): 
-                            // Menyediakan data untuk dipaparkan
+                            // provide default values and sanitization for book details
                             $book_id = $book['id'];
                             $title = addslashes(htmlspecialchars($book['title']));
                             $author = addslashes(htmlspecialchars($book['author']));
@@ -372,7 +372,7 @@ if ($books_query && $books_query->num_rows > 0) {
                             $price_str = 'RM ' . $price_num;
                             $img_path = !empty($book['book_img']) ? '../' . htmlspecialchars($book['book_img']) : '../img/book1.jpg';
                             
-                            // Jika tiada lajur description dalam DB, guna deskripsi lalai ini
+                            // if description is empty, create a default one using title and author
                             $desc = addslashes("Dive into the wonderful world of " . $title . " by " . $author . ". A masterpiece that will capture your imagination.");
                         ?>
                         
@@ -392,7 +392,7 @@ if ($books_query && $books_query->num_rows > 0) {
 
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p style="color: white; font-size: 18px;">Belum ada senarai buku yang dimasukkan oleh pihak pentadbir.</p>
+                        <p style="color: white; font-size: 18px;">There are currently no books added by the administrator..</p>
                     <?php endif; ?>
                 </div>
             </section>
@@ -466,7 +466,7 @@ if ($books_query && $books_query->num_rows > 0) {
     <script>
         window.onload = function() {
             alert("Buku berjaya ditambah ke dalam Troli anda!");
-            // Hilangkan '?added=1' pada URL supaya alert tak keluar berulang kali bila refresh
+            // Remove the '?added=1' parameter from the URL to prevent the alert from being displayed again when the page is refreshed.
             window.history.replaceState(null, null, window.location.pathname);
         };
     </script>
@@ -479,39 +479,39 @@ if ($books_query && $books_query->num_rows > 0) {
             currentQty += amount;
             if(currentQty < 1) currentQty = 1;
             
-            // Update paparan
+            // Update screen value
             document.getElementById('qtyVal').innerText = currentQty;
-            // Update nilai yang akan dihantar ke PHP
+            // Update the value that will be submitted to PHP
             document.getElementById('formQtyVal').value = currentQty;
         }
 
         function openProductDetailsFromBtn(event, id, title, author, price, imgPath, description) {
-            event.stopPropagation(); // Elak konflik klik
+            event.stopPropagation(); // avoid triggering the parent book-item click event
             openProductDetails(id, title, author, price, imgPath, description);
         }
 
         function openProductDetails(id, title, author, price, imgPath, description) {
-            // Set maklumat dalam pop-up
+            // set pop-up content based on the clicked book item
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalAuthor').innerText = "By " + author;
             document.getElementById('modalPrice').innerText = price;
             document.getElementById('modalDesc').innerText = description;
             
-            // Set ID Buku ke dalam borang tersembunyi untuk dihantar ke PHP (Cart)
+            // set book id in hidden input for form submission
             document.getElementById('modalBookId').value = id;
             
-            // Set gambar
+            // Set picture in main preview and thumbnails (for demo, using the same image)
             document.getElementById('modalImg').src = imgPath;
             document.getElementById('thumb1').src = imgPath;
             document.getElementById('thumb2').src = imgPath;
             document.getElementById('thumb3').src = imgPath;
             
-            // Reset kuantiti
+            // Reset quantity to 1 whenever a new product is opened
             currentQty = 1;
             document.getElementById('qtyVal').innerText = currentQty;
             document.getElementById('formQtyVal').value = currentQty;
             
-            // Paparkan pop-up modal
+            // Display pop-up modal
             document.getElementById('productModal').style.display = 'flex';
         }
 
@@ -519,7 +519,7 @@ if ($books_query && $books_query->num_rows > 0) {
             document.getElementById('productModal').style.display = 'none';
         }
 
-        // Kesan klik format buku (Design sahaja)
+        // effect for format selection buttons in the product details pop-up
         const formatBtns = document.querySelectorAll('.format-btn');
         formatBtns.forEach(btn => {
             btn.addEventListener('click', function() {

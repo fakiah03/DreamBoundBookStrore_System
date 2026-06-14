@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once '../db.php'; // Sambungan ke database
+require_once '../db.php'; 
 
-// 1. SEKATAN KESELAMATAN: Pastikan pelanggan log masuk
+// 1. SECURITY RESTRICTION: Ensure that the customer is logged in.
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
     header("Location: ../Auth/login.php");
     exit();

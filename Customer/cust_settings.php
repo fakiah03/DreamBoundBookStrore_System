@@ -4,10 +4,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 1. Ambil fail sambungan database anda
 require_once '../db.php'; 
 
-// Pastikan user dah log masuk
+// 1. SECURITY RESTRICTION: Ensure only authorized Admins can enter this page
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../Auth/login.php");
     exit();
@@ -15,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 2. Ambil data terkini menggunakan lajur 'phone' (ditambah ?? "" untuk elak amaran Deprecated PHP 8.1+)
+// 2.Retrieve the latest data using the 'phone' column (added ?? "" to prevent PHP 8.1+ Deprecated warnings).
 $sql = "SELECT fullname, email, phone, address, postcode, city, state FROM users WHERE id = '$user_id'";
 $result = $conn->query($sql);
 
@@ -32,7 +31,7 @@ if ($result && $result->num_rows > 0) {
     $state = $user['state'] ?? "";
 }
 
-// 3. Logik simpan data apabila butang "SAVE CHANGES" ditekan
+// 3.Logic to save data when the 'SAVE CHANGES' button is clicked.
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
     $phone = mysqli_real_escape_string($conn, $_POST['phone']); 
@@ -42,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $city = mysqli_real_escape_string($conn, $_POST['city']);
     $state = mysqli_real_escape_string($conn, $_POST['state']);
 
-    // Kemas kini database menggunakan lajur 'phone' dan alamat baharu
+    // Update the database using the 'phone' column and the new address.
     $update_sql = "UPDATE users SET 
                     fullname='$fullname', 
                     email='$email', 
@@ -54,9 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   WHERE id='$user_id'";
 
     if ($conn->query($update_sql)) {
-        $_SESSION['fullname'] = $fullname; // Kemas kini nama dalam session jika berubah
+        $_SESSION['fullname'] = $fullname; // Update the name in the session if it has changed.
         
-        // Logik tukar password jika checkbox dicentang
+        // Logic to change the password if the checkbox is checked.
         if (isset($_POST['changePasswordCheck'])) {
             $currpass = $_POST['currpass'];
             $newpass = $_POST['newpass'];
@@ -585,7 +584,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             if (!isValid) {
-                event.preventDefault(); // Sekat hantar ke PHP jika tidak valid
+                event.preventDefault(); // Prevent submission to PHP if the input is invalid.
             }
 
             return isValid;

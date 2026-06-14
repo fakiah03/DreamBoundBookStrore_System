@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once '../db.phpww';
+require_once '../db.php';
 
-// SECURITY: Only logged-in customers
+// SECURITY RESTRICTION: Ensure that the customer is logged in.
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
     header("Location: ../Auth/login.php");
     exit();
@@ -367,7 +367,8 @@ $user_data = ($user_q && $user_q->num_rows > 0) ? $user_q->fetch_assoc() : [];
                         </div>
                     </div>
 
-                </div><!-- /.checkout-left -->
+                </div>
+                <!-- /.checkout-left -->
 
                 <!-- Order Summary -->
                 <div class="checkout-right">
@@ -408,7 +409,8 @@ $user_data = ($user_q && $user_q->num_rows > 0) ? $user_q->fetch_assoc() : [];
                     </div>
                 </div>
 
-            </div><!-- /.checkout-grid -->
+            </div>
+            <!-- /.checkout-grid -->
         </form>
     </main>
 </div>

@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once 'db.php'; // Hubungkan ke pangkalan data untuk hantar log
+require_once 'db.php'; 
 
-// 1. REKOD AKTIVITI LOG OUT KE DALAM SYSTEM LOGS (Sebelum session dipadamkan)
+// 1. Log the user logout activity in system logs prior to session destruction.
 if (isset($_SESSION['fullname'])) {
     $nama = $_SESSION['fullname'];
     $role = isset($_SESSION['role']) ? ucfirst($_SESSION['role']) : 'Pengguna';
@@ -11,10 +11,10 @@ if (isset($_SESSION['fullname'])) {
     $conn->query("INSERT INTO system_logs (log_message) VALUES ('$log_msg')");
 }
 
-// 2. PADAM SEMUA DATA SESSION
-$_SESSION = array(); // Kosongkan array session
+// 2. Clear all session data.
+$_SESSION = array(); 
 
-// Jika menggunakan cookie session, padamkan cookie tersebut juga
+// If a session cookie is used, also remove the session cookie.
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
@@ -23,13 +23,13 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Hancurkan session sepenuhnya
+// Fully terminate and destroy the session.
 session_destroy();
 
-// 3. HALA TUJU (REDIRECT) SELEPAS LOGOUT
-// Kita bawa pengguna balik ke fail login atau index utama
+// Navigation flow after logout (redirect).
+// Redirect the user to the login page or the main index page.
 echo "<script>
-    alert('Anda telah berjaya log keluar.');
+    alert('You have successfully logged out.');
     window.location.href = 'Auth/login.php'; 
 </script>";
 exit();

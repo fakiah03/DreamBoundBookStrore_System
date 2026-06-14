@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once '../db.php'; // Sambungan ke database
+require_once '../db.php'; 
 
-// 1. SEKATAN KESELAMATAN: Pastikan pelanggan sudah log masuk
+// 1. SECURITY RESTRICTION: Ensure that the customer is logged in.
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
     header("Location: ../Auth/login.php");
     exit();
@@ -11,16 +11,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
 $user_id = $_SESSION['user_id'];
 $fullname = $_SESSION['fullname'] ?? 'Customer';
 
-// (PILIHAN) Cipta jadual troli secara automatik jika belum wujud dalam database
-$conn->query("CREATE TABLE IF NOT EXISTS cart (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    book_id INT NOT NULL,
-    quantity INT DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)");
 
-// 2. PROSES TINDAKAN TROLI (Tambah, Tolak, Padam)
+// 2. Action handler for updating cart items (increase, decrease, remove)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $cart_id = intval($_POST['cart_id']);
     $action = $_POST['action'];
@@ -33,20 +25,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $conn->query("DELETE FROM cart WHERE id = $cart_id AND user_id = $user_id");
     }
     
-    // Refresh halaman untuk mengemas kini pengiraan
+    // Refresh the page to reflect changes
     header("Location: cust_cart.php");
     exit();
 }
 
-// 3. AMBIL KADAR PENGHANTARAN DARI STORE SETTINGS (Yang telah kita buat sebelum ini)
-$shipping_fee = 5.00; // Nilai lalai
+// 3. TAKE SHIPPING FEE FROM DATABASE
+$shipping_fee = 5.00; 
 $setting_query = $conn->query("SELECT ship_semenanjung FROM store_settings LIMIT 1");
 if ($setting_query && $setting_query->num_rows > 0) {
     $store_data = $setting_query->fetch_assoc();
     $shipping_fee = $store_data['ship_semenanjung'];
 }
 
-// 4. AMBIL DATA ITEM DALAM TROLI PELANGGAN INI
+// 4. TAKE ITEM DATA FROM THE CUSTOMER'S CART
 $cart_query = $conn->query("
     SELECT c.id as cart_id, c.quantity, b.title, b.author, b.price, b.book_img 
     FROM cart c 
@@ -66,7 +58,7 @@ if ($cart_query && $cart_query->num_rows > 0) {
     }
 }
 
-// Jika troli kosong, kos penghantaran patut jadi RM0
+// if cart is empty, set shipping fee to 0
 if ($total_items == 0) {
     $shipping_fee = 0;
 }
@@ -84,7 +76,7 @@ $total_price = $subtotal + $shipping_fee;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* REKA BENTUK CSS ASAL ANDA DIKEKALKAN 100% */
+        
         :root {
             --primary-blue: #0A2647;
             --accent-orange: #F29400;

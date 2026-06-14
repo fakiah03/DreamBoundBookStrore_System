@@ -1,15 +1,15 @@
 <?php
 session_start();
 
-// Semak jika pengguna sudah mempunyai session log masuk aktif
+// Verify whether the user has an active login session.
 $isLoggedIn = false;
-$dashboardURL = 'Auth/login.php'; // Default jika belum login
+$dashboardURL = 'Auth/login.php'; 
 
 if (isset($_SESSION['user_id'])) {
     $isLoggedIn = true;
-    // Tentukan hala tuju mengikut role pengguna
+    // Redirect users according to their assigned role.
     if ($_SESSION['role'] === 'admin') {
-        $dashboardURL = 'Admin/ad_Dashboard.php'; // Tukar ke .php jika dashboard admin anda berformat php
+        $dashboardURL = 'Admin/ad_Dashboard.php'; 
     } else {
         $dashboardURL = 'Customer/cust_home.php';
     }
@@ -28,7 +28,6 @@ if (isset($_SESSION['user_id'])) {
     <link href="https://fonts.googleapis.com/css2?family=Englebert&display=swap" rel="stylesheet">
     
     <style>
-        /* Base Reset & Theme */
         html {
             scroll-behavior: smooth;
         }
@@ -46,7 +45,6 @@ if (isset($_SESSION['user_id'])) {
             line-height: 1.6;
         }
 
-        /* --- Header / Navbar --- */
         .navbar {
             background-color: #0E2C46; 
             color: white;
@@ -104,7 +102,6 @@ if (isset($_SESSION['user_id'])) {
             color: #0E2C46;
         }
 
-        /* --- HERO SECTION --- */
         .hero {
             padding: 50px 20px; 
             background-color: #FC9D01; 
@@ -180,7 +177,6 @@ if (isset($_SESSION['user_id'])) {
             transform: translateY(-2px);
         }
 
-        /* --- Featured Books Section --- */
         #featured-books {
             padding: 60px 40px;
             max-width: 1300px;
@@ -464,9 +460,9 @@ if (isset($_SESSION['user_id'])) {
             document.querySelector('#contact-info').scrollIntoView({ behavior: 'smooth' });
         });
 
-        // Logik hala tuju butang Hero
+        // Logic for determining the navigation of the Hero button.
         document.getElementById('browseBtn').addEventListener('click', function() {
-            // Jika dah login, bawa terus ke kedai dalaman customer. Jika belum, bawa ke fail senarai biasa
+            // Redirect users to the customer store if logged in; otherwise, direct them to the standard listing page.
             <?php if ($isLoggedIn): ?>
                 window.location.href = 'Customer/cust_home.php'; 
             <?php else: ?>
@@ -474,7 +470,7 @@ if (isset($_SESSION['user_id'])) {
             <?php endif; ?>
         });
 
-        // Logik butang bawah Featured Books
+        // Navigation logic for the button below Featured Books.
         document.getElementById('viewMoreBtn').addEventListener('click', function() {
             <?php if ($isLoggedIn): ?>
                 window.location.href = 'Customer/cust_home.php'; 

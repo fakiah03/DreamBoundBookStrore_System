@@ -2,7 +2,7 @@
 session_start();
 require_once '../db.php';
 
-// ── Security: customers only ────────────────────────────────────────────────
+// // 1. SECURITY RESTRICTION: Ensure only authorized Admins can enter this page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
     header("Location: ../Auth/login.php");
     exit();

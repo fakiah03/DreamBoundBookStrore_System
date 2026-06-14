@@ -3,30 +3,27 @@ session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-// 1. KELUAR SATU FOLDER UNTUK JUMPA db.php
 require_once '../db.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Ambil data dari borang HTML
+    // Get form data from the HTML form.
     $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = $_POST['password'];
     $confirmPassword = $_POST['confirmPassword'];
     $phone = mysqli_real_escape_string($conn, $_POST['phone']);
 
-    // 2. SEMAK KATA LALUAN SEPADAN
+    // Verify that the password values match.
     if ($password !== $confirmPassword) {
         echo "<script>alert('Passwords do not match!'); window.location.href='signup.php';</script>";
         exit();
     }
 
-    // 3. ENKRIPSI KATA LALUAN (Untuk Keselamatan)
+    // 3. $checkEmail->bind_param("s", $email);Apply password encryption (for security).
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // 4. SEMAK JIKA EMEL DAFTAR KALI KEDUA (Prepared Statement)
+    // 4. Verify duplicate email registration using a prepared statement.
     $checkEmail = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $checkEmail->bind_param("s", $email);
     $checkEmail->execute();
     $result = $checkEmail->get_result();
 
@@ -35,31 +32,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $checkEmail->close();
         exit();
     }
-    $checkEmail->close(); // Tutup statement semak email setelah selesai digunakan
-
-    // =========================================================
-    // TAMBAHAN: JANA CUSTOMER ID STR SECARA AUTOMATIK & TIER
-    // =========================================================
+    $checkEmail->close(); 
     $res_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'customer'");
     $row_count = $res_count->fetch_assoc();
     $next_id_num = $row_count['total'] + 1;
     
-    // Menghasilkan format: #CUST-0001, #CUST-0002, dan seterusnya
+    // Generate sequential IDs in the format #CUST-0001, #CUST-0002, etc.
     $customer_id_str = "#CUST-" . str_pad($next_id_num, 4, "0", STR_PAD_LEFT);
-    $membership_tier = "Regular"; // Status ahli lalai untuk pendaftaran baharu
-    // =========================================================
-
-    // 5. QUERY UNTUK MASUKKAN PENGGUNA BAHARU (DIUBAH UNTUK SESUAIKAN LAJUR DATABASE TERKINI)
+    $membership_tier = "Regular"; // Set default membership status for new user registrations
+    // 5. SQL query to add a new user (updated to align with the current database schema).
     $sql_register = "INSERT INTO users (customer_id_str, fullname, email, password, phone, role, membership_tier) 
                      VALUES ('$customer_id_str', '$fullname', '$email', '$hashed_password', '$phone', 'customer', '$membership_tier')";
 
     if ($conn->query($sql_register) === TRUE) {
         
-        // 6. REKOD PENDAFTARAN BAHARU KE JADUAL SYSTEM_LOGS
+        // 6. Log new user registration activity into the system_logs table.
         $log_msg = "New user $fullname ($email) has registered with ID $customer_id_str.";
         $conn->query("INSERT INTO system_logs (log_message) VALUES ('$log_msg')");
 
-        // 7. AUTO LOGIN — set session so customer lands on cust_home.php directly
+        // 7. Implement auto-login by setting session data and redirecting the customer to cust_home.php.
         $new_user_id = $conn->insert_id;
         $_SESSION['user_id']  = $new_user_id;
         $_SESSION['fullname'] = $fullname;
@@ -112,7 +103,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             position: relative;
         }
 
-        /* Elemen Hiasan Terapung Khas Aura Dreambound */
         .bg-blob {
             position: absolute;
             border-radius: 50%;
@@ -154,7 +144,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             z-index: 2;
         }
         
-        /* Bahagian Penjenamaan Kiri */
         .brand-showcase {
             color: #FDF5E6;
             max-width: 45%;
@@ -178,7 +167,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #e0e0e0;
         }
 
-        /* Sign Up Card - Saiz Dioptimumkan Lebih Kemas */
         .signup-card {
             background-color: rgba(14, 44, 70, 0.85); 
             width: 390px;
@@ -228,7 +216,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             box-shadow: 0 0 8px rgba(252, 157, 1, 0.5);
         }
 
-        /* Create Account Button Dinamik */
+        /* Create Account Dynamic Button */
         .create-btn {
             width: 85%;
             padding: 10px;
@@ -252,7 +240,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             box-shadow: 4px 4px 0px #FC9D01;
         }
 
-        /* Divider Kosmetik */
         .divider {
             display: flex;
             align-items: center;
@@ -273,7 +260,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 0 10px;
         }
 
-        /* Google Button - Diperkemas */
         .google-btn {
             display: flex;
             align-items: center;
