@@ -2,50 +2,56 @@
 session_start();
 require_once '../db.php'; 
 
-// Sekatan Keselamatan: Pastikan hanya Admin sahaja yang boleh jalankan proses ini
+// Security Restrictions: Ensure that only Admins can run this process
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: Auth/login.php");
     exit();
 }
 
-// Semak jika data dihantar melalui borang POST
+// Security Restrictions: Ensure that only Admins can run this process
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: Auth/login.php");
+    exit();
+}
+
+// Check if data is submitted via POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
-    // 1. Ambil data dari borang dashboard
+    // 1. Retrieve data from the dashboard form
     $fullname   = $_POST['staff_name'];
     $email      = $_POST['staff_email'];
     $phone      = $_POST['staff_phone'];
     $plain_pass = $_POST['staff_password'];
-    $role       = $_POST['staff_role']; // Nilai: 'clerk' atau 'manager'
+    $role       = $_POST['staff_role']; // Value: 'clerk' or 'manager'
     
-    // 2. Enkripsi/Hash kata laluan untuk keselamatan
+    // 2. Password encryption/hash for security
     $hashed_pass = password_hash($plain_pass, PASSWORD_DEFAULT);
     
-    // 3. Tetapkan nilai lalai (default) untuk kakitangan
-    $customer_id_str = NULL; // Kakitangan tidak memerlukan ID pelanggan (#CUST-XXXX)
-    $membership_tier = 'Regular'; // Boleh diletakkan Regular atau NULL mengikut struktur db anda
+    // 3. Set default values for staff
+    $customer_id_str = NULL; // Staff do not require a customer ID (#CUST-XXXX)
+    $membership_tier = 'Regular'; // Can be set to Regular or NULL based on your database structure
 
-    // 4. Sediakan arahan SQL SQL (Menggunakan Prepared Statement untuk elak SQL Injection)
+    // 4. Prepare SQL SQL commands (Using Prepared Statements to avoid SQL Injection)
     $sql = "INSERT INTO users (customer_id_str, fullname, email, password, phone, role, membership_tier) 
             VALUES (?, ?, ?, ?, ?, ?, ?)";
             
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssssss", $customer_id_str, $fullname, $email, $hashed_pass, $phone, $role, $membership_tier);
     
-    // 5. Jalankan query dan kembalikan ke dashboard
+    // 5. Run the query and return to the dashboard
     if ($stmt->execute()) {
-        // Berjaya: Kembali ke dashboard dengan mesej status sukses
+        // Successful: Return to dashboard with success status message
         header("Location: ad_DashBoard.php?status=staff_success");
         exit();
     } else {
-        // Gagal: Paparkan ralat jika ada masalah (cth: e-mel bertindih)
-        echo "Ralat pendaftaran kakitangan: " . $conn->error;
+        // Failed: Show an error if there is a problem (e.g.: duplicate email)
+        echo "Error registering staff: " . $conn->error;
     }
     
     $stmt->close();
     $conn->close();
 } else {
-    // Jika fail ini diakses secara terus tanpa hantar borang, sekat akses
+    // If this file is accessed directly without submitting the form, block access
     header("Location: ad_DashBoard.php");
     exit();
 }

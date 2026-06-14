@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 1. Ambil fail sambungan pangkalan data
+// 1. Retrieve database connection file
 require_once '../db.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -18,19 +18,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Sahkan password yang dimasukkan dengan password dalam database (di-hash)
+        // Verify the entered password with the password in the database (hashed)
         if (password_verify($password, $user['password'])) {
             
-            // 1. Simpan data dalam Session
+            // 1. Store data in Session
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['fullname'] = $user['fullname'];
             $_SESSION['role'] = $user['role'];
 
-            // 2. REKOD LOG MASUK KE DATABASE (Data untuk Live Logs Dashboard)
-            $nama = $_SESSION['fullname'];
-            $conn->query("INSERT INTO system_logs (log_message) VALUES ('User $nama has logged in.')");
+            // 2.LOG RECORDS ENTERED INTO DATABASE (Data for Live Logs Dashboard)
+            $name = $_SESSION['fullname'];
+            $conn->query("INSERT INTO system_logs (log_message) VALUES ('User $name has logged in.')");
 
-            // 3. Logik hala tuju / redirect berdasarkan peranan (Role)
+            // 3. Role-based redirection logic
             if ($user['role'] == 'admin') {
                 echo "<script>alert('Welcome Admin!'); window.location.href='../Admin/ad_DashBoard.php';</script>";
             } else {
@@ -146,7 +146,7 @@ $conn->close();
             color: #e0e0e0;
         }
 
-        /* Login Card - Disesuaikan saiz sama dengan signup.php */
+        /* Login Card - Resized to the same size as signup.php */
         .login-card {
             background-color: rgba(14, 44, 70, 0.85); 
             width: 390px;
