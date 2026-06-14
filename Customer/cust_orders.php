@@ -46,7 +46,6 @@ try {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dreambound Bookstore - Orders</title>
     
@@ -330,6 +329,14 @@ try {
         <main class="content">
             <h1>Your Order</h1>
             <p class="subtitle">View the current status of your orders</p>
+
+            <?php if (isset($_GET["order_success"]) && intval($_GET["order_success"]) > 0): ?>
+            <div style="background:#ecfdf5;border:1.5px solid #6ee7b7;color:#065f46;padding:16px 20px;border-radius:14px;margin-bottom:22px;display:flex;align-items:center;gap:14px;font-size:17px;">
+                <i class="fas fa-check-circle" style="font-size:24px;color:#10b981;"></i>
+                <div><strong>Order #<?php echo intval($_GET["order_success"]); ?> placed successfully!</strong><br>
+                <span style="font-size:14px;color:#047857;">Thank you for your purchase. Your order is now being processed.</span></div>
+            </div>
+            <?php endif; ?>
 
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../db.php';
+require_once '../db.phpww';
 
 // SECURITY: Only logged-in customers
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {

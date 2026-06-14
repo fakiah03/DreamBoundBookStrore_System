@@ -77,7 +77,6 @@ $total_price = $subtotal + $shipping_fee;
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dreambound Bookstore - Cart</title>
     
@@ -369,7 +368,7 @@ $total_price = $subtotal + $shipping_fee;
                         <span>RM <?php echo number_format($total_price, 2); ?></span>
                     </div>
                     
-                    <button class="checkout-btn" onclick="location.href='cust_checkout.php'" <?php echo ($total_items == 0) ? 'disabled' : ''; ?>>
+                    <button class="checkout-btn" onclick="location.href='cust_payment.php'" <?php echo ($total_items == 0) ? 'disabled' : ''; ?>>
                         <i class="fas fa-credit-card"></i> Proceed to Checkout
                     </button>
                 </div>
