@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 06, 2026 at 10:25 AM
+-- Generation Time: Jun 14, 2026 at 11:45 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,8 +48,8 @@ INSERT INTO `books` (`id`, `title`, `author`, `genre`, `price`, `stock`, `sold_q
 (2, 'Atomic Habits', 'James Clear', 'Self-Help', 45.00, 80, 98, 'img/book2.jpg', '2026-06-04 08:27:17'),
 (3, 'To Kill A Mockingbird', 'Harper Lee', 'Classic', 39.90, 2, 45, 'img/book3.jpg', '2026-06-04 08:27:17'),
 (4, 'Hamlet', 'William Shakespeare', 'Drama', 25.00, 5, 12, 'img/book4.jpg', '2026-06-04 08:27:17'),
-(5, 'Advanced Calculus', 'Gerald B. Folland', 'Academic', 85.00, 15, 0, 'img/book4.jpg', '2026-06-04 08:27:17'),
-(6, 'Old Macroeconomics', 'N. Gregory Mankiw', 'Academic', 79.00, 20, 1, 'img/book4.jpg', '2026-06-04 08:27:17');
+(5, 'Advanced Calculus', 'Gerald B. Folland', 'Academic', 85.00, 14, 1, 'img/book4.jpg', '2026-06-04 08:27:17'),
+(6, 'Old Macroeconomics', 'N. Gregory Mankiw', 'Academic', 79.00, 18, 3, 'img/book4.jpg', '2026-06-04 08:27:17');
 
 -- --------------------------------------------------------
 
@@ -65,14 +65,6 @@ CREATE TABLE `cart` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `cart`
---
-
-INSERT INTO `cart` (`id`, `user_id`, `book_id`, `quantity`, `created_at`) VALUES
-(1, 6, 6, 1, '2026-06-06 05:28:47'),
-(2, 6, 5, 1, '2026-06-06 05:29:00');
-
 -- --------------------------------------------------------
 
 --
@@ -87,6 +79,14 @@ CREATE TABLE `orders` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `created_at`) VALUES
+(1, 6, 168.50, 'shipped', '2026-06-06 09:25:32'),
+(2, 6, 83.50, 'pending', '2026-06-14 02:55:35');
+
 -- --------------------------------------------------------
 
 --
@@ -100,6 +100,15 @@ CREATE TABLE `order_items` (
   `quantity` int(11) NOT NULL,
   `price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_items`
+--
+
+INSERT INTO `order_items` (`id`, `order_id`, `book_id`, `quantity`, `price`) VALUES
+(1, 1, 6, 1, 79.00),
+(2, 1, 5, 1, 85.00),
+(3, 2, 6, 1, 79.00);
 
 -- --------------------------------------------------------
 
@@ -174,7 +183,26 @@ INSERT INTO `system_logs` (`id`, `log_message`, `created_at`) VALUES
 (16, 'Admin Fatihah Duereh telah log keluar daripada sistem.', '2026-06-05 18:01:08'),
 (17, 'User john smith has logged in.', '2026-06-06 01:26:29'),
 (18, 'User john smith has logged in.', '2026-06-06 02:52:13'),
-(19, 'User john smith has logged in.', '2026-06-06 05:28:39');
+(19, 'User john smith has logged in.', '2026-06-06 05:28:39'),
+(20, 'Customer john smith telah log keluar daripada sistem.', '2026-06-06 09:23:27'),
+(21, 'User Fatihah Duereh has logged in.', '2026-06-06 09:23:36'),
+(22, 'Admin Fatihah Duereh telah log keluar daripada sistem.', '2026-06-06 09:25:00'),
+(23, 'User john smith has logged in.', '2026-06-06 09:25:16'),
+(24, 'New order #1 placed by john smith (User ID: 6). Total: RM 168.50', '2026-06-06 09:25:32'),
+(25, 'Customer john smith telah log keluar daripada sistem.', '2026-06-06 09:25:45'),
+(26, 'User Fatihah Duereh has logged in.', '2026-06-06 09:25:50'),
+(27, 'Admin menukar status pesanan ID #1 kepada delivered', '2026-06-06 09:26:10'),
+(28, 'User Fatihah Duereh has logged in.', '2026-06-09 04:51:22'),
+(29, 'Admin Fatihah Duereh telah log keluar daripada sistem.', '2026-06-09 04:52:32'),
+(30, 'User john smith has logged in.', '2026-06-09 04:52:42'),
+(31, 'Customer john smith telah log keluar daripada sistem.', '2026-06-09 04:58:28'),
+(32, 'User Fatihah Duereh has logged in.', '2026-06-09 04:58:44'),
+(33, 'Admin menukar status pesanan ID #1 kepada shipped', '2026-06-09 04:59:08'),
+(34, 'Admin Fatihah Duereh telah log keluar daripada sistem.', '2026-06-09 05:02:52'),
+(35, 'User Fatihah Duereh has logged in.', '2026-06-09 05:11:55'),
+(36, 'Admin Fatihah Duereh telah log keluar daripada sistem.', '2026-06-09 05:12:21'),
+(37, 'User john smith has logged in.', '2026-06-14 02:55:03'),
+(38, 'Order #2 placed by user ID 6 via qr. Total: RM 83.50', '2026-06-14 02:55:35');
 
 -- --------------------------------------------------------
 
@@ -225,7 +253,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `customer_id_str`, `fullname`, `email`, `password`, `phone`, `address`, `postcode`, `city`, `state`, `role`, `membership_tier`, `created_at`) VALUES
 (5, NULL, 'Fatihah Duereh', 'fatihahduereh@gmail.com', '$2y$10$e6TInO1yAh5nAYg2jDFAOez6MDrPKeB.N5fNHNjaTgdefbW.Ca5Ru', '0190909876', NULL, NULL, NULL, NULL, 'admin', 'Regular', '2026-06-04 08:39:56'),
-(6, '#CUST-0011', 'john smith', 'john@gmail.com', '$2y$10$DqJhm7b1DZe.Xliit8ewvePuLdTU2Le65SF2YVaGAKRIO0iGnffl2', '0187653456', NULL, NULL, NULL, NULL, 'customer', 'Regular', '2026-06-04 12:39:58'),
+(6, '#CUST-0011', 'john smith', 'john@gmail.com', '$2y$10$DqJhm7b1DZe.Xliit8ewvePuLdTU2Le65SF2YVaGAKRIO0iGnffl2', '+600187653456', 'PT 3374', '17200', 'Kota Bharu', 'Kelantan', 'customer', 'Regular', '2026-06-04 12:39:58'),
 (7, '#CUST-0004', 'Siti Norhaliza', 'siti@gmail.com', '$2y$10$W5bWb7S3g4M6sD8f9g0h1uE4r5t6y7u8i9o0p1a2s3d4f5g6h7j8k', '011-2345678', NULL, NULL, NULL, NULL, 'customer', 'VIP', '2026-06-05 08:29:41'),
 (8, '#CUST-0005', 'Muhammad Adam', 'adam.muhd@gmail.com', '$2y$10$W5bWb7S3g4M6sD8f9g0h1uE4r5t6y7u8i9o0p1a2s3d4f5g6h7j8k', '017-5554321', NULL, NULL, NULL, NULL, 'customer', 'Regular', '2026-06-05 08:29:41'),
 (9, '#CUST-0006', 'Farah Diana', 'farah.d@yahoo.com', '$2y$10$W5bWb7S3g4M6sD8f9g0h1uE4r5t6y7u8i9o0p1a2s3d4f5g6h7j8k', '013-4448899', NULL, NULL, NULL, NULL, 'customer', 'New', '2026-06-05 08:29:41'),
@@ -342,19 +370,19 @@ ALTER TABLE `books`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `reviews`
@@ -366,7 +394,7 @@ ALTER TABLE `reviews`
 -- AUTO_INCREMENT for table `system_logs`
 --
 ALTER TABLE `system_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `users`
