@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2026 at 11:45 AM
+-- Generation Time: Jun 16, 2026 at 07:16 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -36,20 +36,23 @@ CREATE TABLE `books` (
   `stock` int(11) NOT NULL DEFAULT 0,
   `sold_qty` int(11) DEFAULT 0,
   `book_img` varchar(255) DEFAULT 'img/default-book.jpg',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `price_paperback` decimal(10,2) DEFAULT NULL,
+  `price_hardcover` decimal(10,2) DEFAULT NULL,
+  `price_ebook` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `books`
 --
 
-INSERT INTO `books` (`id`, `title`, `author`, `genre`, `price`, `stock`, `sold_qty`, `book_img`, `created_at`) VALUES
-(1, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 35.00, 120, 142, 'img/book1.jpg', '2026-06-04 08:27:17'),
-(2, 'Atomic Habits', 'James Clear', 'Self-Help', 45.00, 80, 98, 'img/book2.jpg', '2026-06-04 08:27:17'),
-(3, 'To Kill A Mockingbird', 'Harper Lee', 'Classic', 39.90, 2, 45, 'img/book3.jpg', '2026-06-04 08:27:17'),
-(4, 'Hamlet', 'William Shakespeare', 'Drama', 25.00, 5, 12, 'img/book4.jpg', '2026-06-04 08:27:17'),
-(5, 'Advanced Calculus', 'Gerald B. Folland', 'Academic', 85.00, 14, 1, 'img/book4.jpg', '2026-06-04 08:27:17'),
-(6, 'Old Macroeconomics', 'N. Gregory Mankiw', 'Academic', 79.00, 18, 3, 'img/book4.jpg', '2026-06-04 08:27:17');
+INSERT INTO `books` (`id`, `title`, `author`, `genre`, `price`, `stock`, `sold_qty`, `book_img`, `created_at`, `price_paperback`, `price_hardcover`, `price_ebook`) VALUES
+(7, 'Not Here To Be Liked', 'Michelle Quach', 'Drama', 50.00, 100, 0, 'img/book1.jpg', '2026-06-15 05:21:38', NULL, NULL, NULL),
+(8, 'Why Don\'t We?', 'Winter Sonata', 'Drama', 45.00, 90, 0, 'img/book2.jpg', '2026-06-15 05:30:20', NULL, NULL, NULL),
+(9, 'Lover By The Sea', 'MiMiDaisy', 'Drama', 60.00, 70, 0, 'img/book3.jpg', '2026-06-15 05:38:06', NULL, NULL, NULL),
+(10, 'Fortune Academy', 'J. R. Thorn', 'Fiction', 90.00, 40, 0, 'img/book5.jpg', '2026-06-15 05:39:39', NULL, NULL, NULL),
+(11, 'Finding Iris Hanani', 'Penulis Jalanan', 'Drama', 60.00, 50, 0, 'img/book7.jpg', '2026-06-15 05:41:36', NULL, NULL, NULL),
+(12, 'Can I tell You I love you?', 'Mystic', 'Drama', 40.00, 2, 0, 'img/book8.jpg', '2026-06-15 05:42:38', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -62,8 +65,16 @@ CREATE TABLE `cart` (
   `user_id` int(11) NOT NULL,
   `book_id` int(11) NOT NULL,
   `quantity` int(11) DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `format` varchar(20) DEFAULT 'paperback'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cart`
+--
+
+INSERT INTO `cart` (`id`, `user_id`, `book_id`, `quantity`, `created_at`, `format`) VALUES
+(4, 6, 12, 1, '2026-06-15 05:53:04', 'paperback');
 
 -- --------------------------------------------------------
 
@@ -101,15 +112,6 @@ CREATE TABLE `order_items` (
   `price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `order_items`
---
-
-INSERT INTO `order_items` (`id`, `order_id`, `book_id`, `quantity`, `price`) VALUES
-(1, 1, 6, 1, 79.00),
-(2, 1, 5, 1, 85.00),
-(3, 2, 6, 1, 79.00);
-
 -- --------------------------------------------------------
 
 --
@@ -125,6 +127,13 @@ CREATE TABLE `reviews` (
   `status` enum('pending','approved','rejected') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reviews`
+--
+
+INSERT INTO `reviews` (`id`, `user_id`, `book_id`, `rating`, `comment`, `status`, `created_at`) VALUES
+(2, 6, 12, 4, 'best', 'approved', '2026-06-16 04:47:53');
 
 -- --------------------------------------------------------
 
@@ -202,7 +211,22 @@ INSERT INTO `system_logs` (`id`, `log_message`, `created_at`) VALUES
 (35, 'User Fatihah Duereh has logged in.', '2026-06-09 05:11:55'),
 (36, 'Admin Fatihah Duereh telah log keluar daripada sistem.', '2026-06-09 05:12:21'),
 (37, 'User john smith has logged in.', '2026-06-14 02:55:03'),
-(38, 'Order #2 placed by user ID 6 via qr. Total: RM 83.50', '2026-06-14 02:55:35');
+(38, 'Order #2 placed by user ID 6 via qr. Total: RM 83.50', '2026-06-14 02:55:35'),
+(39, 'User Fatihah Duereh has logged in.', '2026-06-15 05:15:10'),
+(40, 'Admin menambah buku baharu: Not Here To Be Liked', '2026-06-15 05:21:38'),
+(41, 'Admin menambah buku baharu: Why Don\'t We?', '2026-06-15 05:30:20'),
+(42, 'Admin menambah buku baharu: Lover By The Sea', '2026-06-15 05:38:06'),
+(43, 'Admin menambah buku baharu: Fortune Academy', '2026-06-15 05:39:39'),
+(44, 'Admin menambah buku baharu: Finding Iris Hanani', '2026-06-15 05:41:36'),
+(45, 'Admin menambah buku baharu: Can I tell You I love you?', '2026-06-15 05:42:38'),
+(46, 'Admin Fatihah Duereh telah log keluar daripada sistem.', '2026-06-15 05:43:10'),
+(47, 'User john smith has logged in.', '2026-06-15 05:43:21'),
+(48, 'User john smith has logged in.', '2026-06-15 17:14:44'),
+(49, 'User Fatihah Duereh has logged in.', '2026-06-16 04:40:26'),
+(50, 'User john smith has logged in.', '2026-06-16 04:41:15'),
+(51, 'Review submitted by user ID 6 for book ID 12', '2026-06-16 04:47:53'),
+(52, 'User Fatihah Duereh has logged in.', '2026-06-16 04:48:05'),
+(53, 'Admin approved review ID: 2', '2026-06-16 04:48:10');
 
 -- --------------------------------------------------------
 
@@ -364,13 +388,13 @@ ALTER TABLE `vouchers`
 -- AUTO_INCREMENT for table `books`
 --
 ALTER TABLE `books`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -388,13 +412,13 @@ ALTER TABLE `order_items`
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `system_logs`
 --
 ALTER TABLE `system_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `users`
