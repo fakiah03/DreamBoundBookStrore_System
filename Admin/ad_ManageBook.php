@@ -116,58 +116,333 @@ $books = $conn->query("SELECT * FROM books ORDER BY id DESC");
             letter-spacing: 1px; 
             color: #ffffff; }
 
-        .subtitle { font-size: 0.8rem; color: #FC9D01; letter-spacing: 2px; margin-bottom: 15px; }
-        .user-info { background-color: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; font-size: 0.95rem; }
-        .nav-links { list-style: none; margin-top: 25px; flex-grow: 1; padding: 0 15px; }
-        .nav-links li { margin-bottom: 8px; }
-        .nav-links li a { text-decoration: none; color: #ffffff; font-size: 1.05rem; display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 8px; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.05); }
-        .nav-links li.active a, .nav-links li a:hover { background: #FC9D01; color: #0E2C46; font-weight: bold; transform: translateX(5px); }
-        .logout-container { padding: 0 15px; }
-        .btn-logout { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #FC9D01; cursor: pointer; background: transparent; color: #FC9D01; font-size: 1.1rem; font-weight: bold; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-logout:hover { background: #FC9D01; color: #0E2C46; }
-        .main-content { flex-grow: 1; background-color: #FC9D01; padding: 30px; overflow-y: auto; }
-        .page-title { font-size: 2.5rem; color: #0E2C46; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
-        .upper-management-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; margin-bottom: 25px; }
-        .panel-box { background: #FDF5E6; border: 2px solid #0E2C46; border-radius: 15px; padding: 20px; color: #0E2C46; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .panel-box h3 { font-size: 1.4rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #0E2C46; padding-bottom: 5px; }
-        .book-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group.full-width { grid-column: span 2; }
-        .form-group label { font-size: 1rem; font-weight: bold; }
-        .form-group input, .form-group select { padding: 8px 12px; border: 2px solid #0E2C46; border-radius: 6px; font-size: 0.95rem; outline: none; background: white; }
-        .btn-submit { grid-column: span 2; background: #0E2C46; color: white; border: none; padding: 10px; font-size: 1.1rem; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px; transition: background 0.2s; }
-        .btn-submit:hover { background: #1a446c; }
-        .mini-stats-stack { display: flex; flex-direction: column; gap: 15px; height: 100%; }
-        .mini-stat-card { background: white; border: 2px solid #0E2C46; border-radius: 10px; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
-        .mini-stat-card i { font-size: 2rem; color: #FC9D01; background: #0E2C46; padding: 10px; border-radius: 8px; }
-        .mini-stat-info h4 { font-size: 0.95rem; color: #555; }
-        .mini-stat-info p { font-size: 1.5rem; font-weight: bold; }
-        .stock-critical {color: #ef4444;}
-        .stock-icon {background: #ef4444;color: white;}
-        .reminder-box { background: #0E2C46; color: white; border: 2px solid #0E2C46; border-radius: 10px; padding: 20px; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .reminder-box h4 { color: #FC9D01; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
-        .reminder-box ul { list-style: none; font-size: 0.95rem; display: flex; flex-direction: column; gap: 8px; }
-        .reminder-box ul li { display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
-        .reminder-box ul li i { color: #FC9D01; margin-top: 3px; font-size: 0.8rem; }
-        .table-panel { background-color: #FDF5E6; border: 2px solid #0E2C46; border-radius: 15px; padding: 20px; box-shadow: 0 6px 12px rgba(0,0,0,0.1); color: #0E2C46; }
-        .table-header-control { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .search-box { display: flex; background: white; border: 2px solid #0E2C46; border-radius: 25px; overflow: hidden; padding: 2px; width: 100%; max-width: 350px; }
-        .search-box input { border: none; padding: 8px 15px; outline: none; flex-grow: 1; font-size: 0.95rem; }
-        .search-box button { background: #0E2C46; color: white; border: none; padding: 8px 15px; border-radius: 23px; cursor: pointer; }
-        .book-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 1.05rem; }
-        .book-table th { background-color: #0E2C46; color: white; padding: 12px 15px; font-size: 1.1rem; }
-        .book-table td { padding: 10px 15px; border-bottom: 1px solid rgba(14, 44, 70, 0.2); background-color: rgba(255, 255, 255, 0.3); vertical-align: middle; }
-        .book-table tr:hover td { background-color: rgba(252, 157, 1, 0.1); }
-        .book-cover-cell { width: 50px; height: auto; border-radius: 4px; border: 1px solid #0E2C46; }
-        .stock-indicator { font-weight: bold; padding: 2px 6px; border-radius: 4px; }
-        .stock-indicator.low { background-color: #fecaca; color: #991b1b; }
-        .stock-indicator.good { background-color: #bbf7d0; color: #166534; }
-        .action-cell { display: flex; gap: 8px; }
-        .btn-table { padding: 6px 12px; border: 1px solid #0E2C46; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: all 0.2s; text-decoration: none; }
-        .btn-table.edit { background-color: #FC9D01; color: #0E2C46; }
-        .btn-table.edit:hover { background-color: #e08b00; }
-        .btn-table.delete { background-color: #ef4444; color: white; border-color: #ef4444; }
-        .btn-table.delete:hover { background-color: #dc2626; }
+        .subtitle { 
+            font-size: 0.8rem; 
+            color: #FC9D01; 
+            letter-spacing: 2px; 
+            margin-bottom: 15px; 
+        }
+
+        .user-info { 
+            background-color: rgba(255, 255, 255, 0.1); 
+            padding: 10px; 
+            border-radius: 8px; 
+            font-size: 0.95rem; 
+        }
+
+        .nav-links { 
+            list-style: none; 
+            margin-top: 25px; 
+            flex-grow: 1; 
+            padding: 0 15px; 
+        }
+
+        .nav-links li { 
+            margin-bottom: 8px; }
+
+        .nav-links li a { 
+            text-decoration: none; 
+            color: #ffffff; 
+            font-size: 1.05rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            transition: all 0.3s ease; 
+            background: rgba(255, 255, 255, 0.05); }
+
+        .nav-links li.active a, .nav-links li a:hover { 
+            background: #FC9D01; 
+            color: #0E2C46; 
+            font-weight: bold; 
+            transform: translateX(5px); }
+
+        .logout-container { 
+            padding: 0 15px; }
+        .btn-logout { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 2px solid #FC9D01; 
+            cursor: pointer; 
+            background: transparent; 
+            color: #FC9D01; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; g
+            ap: 10px; }
+
+        .btn-logout:hover { 
+            background: #FC9D01; 
+            color: #0E2C46; }
+
+        .main-content { 
+            flex-grow: 1; 
+            background-color: #FC9D01; 
+            padding: 30px; 
+            overflow-y: auto; }
+
+        .page-title { 
+            font-size: 2.5rem; 
+            color: #0E2C46; 
+            margin-bottom: 20px; 
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
+
+        .upper-management-grid { 
+            display: grid; 
+            grid-template-columns: 1.2fr 1fr; 
+            gap: 25px; 
+            margin-bottom: 25px; }
+
+        .panel-box { 
+            background: #FDF5E6; 
+            border: 2px solid #0E2C46; 
+            border-radius: 15px; 
+            padding: 20px; 
+            color: #0E2C46; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+        .panel-box h3 { 
+            font-size: 1.4rem; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            border-bottom: 2px solid #0E2C46;
+            padding-bottom: 5px; }
+
+        .book-form { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; }
+
+        .form-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 5px; }
+
+        .form-group.full-width { 
+            grid-column: span 2; }
+
+        .form-group label { 
+            font-size: 1rem; 
+            font-weight: bold; }
+
+        .form-group input, .form-group select { 
+            padding: 8px 12px; 
+            border: 2px solid #0E2C46; 
+            border-radius: 6px; 
+            font-size: 0.95rem; 
+            outline: none; 
+            background: white; }
+
+        .btn-submit { 
+            grid-column: span 2; b
+            ackground: #0E2C46; 
+            color: white; 
+            border: none; 
+            padding: 10px; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            margin-top: 5px; 
+            transition: background 0.2s; }
+
+        .btn-submit:hover { 
+            background: #1a446c; }
+
+        .mini-stats-stack { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            height: 100%; }
+
+        .mini-stat-card { 
+            background: white; 
+            border: 2px solid #0E2C46; 
+            border-radius: 10px; 
+            padding: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; }
+
+        .mini-stat-card i { 
+            font-size: 2rem; 
+            color: #FC9D01; 
+            background: #0E2C46; 
+            padding: 10px; 
+            border-radius: 8px; }
+
+        .mini-stat-info h4 { 
+            font-size: 0.95rem; 
+            color: #555; }
+
+        .mini-stat-info p { 
+            font-size: 1.5rem; 
+            font-weight: bold; }
+
+        .stock-critical {
+            color: #ef4444;}
+
+        .stock-icon {
+            background: #ef4444;color: white;}
+
+        .reminder-box { 
+            background: #0E2C46; 
+            color: white; 
+            border: 2px solid #0E2C46; 
+            border-radius: 10px; 
+            padding: 20px; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        .reminder-box h4 { 
+            color: #FC9D01; 
+            font-size: 1.2rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            border-bottom: 1px solid rgba(255,255,255,0.2); p
+            adding-bottom: 5px; }
+
+        .reminder-box ul { 
+            list-style: none; 
+            font-size: 0.95rem; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; }
+
+        .reminder-box ul li { 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 8px; 
+            line-height: 1.4; }
+
+        .reminder-box ul li i { 
+            color: #FC9D01; 
+            margin-top: 3px; 
+            font-size: 0.8rem; }
+
+        .table-panel { 
+            background-color: #FDF5E6; 
+            border: 2px solid #0E2C46; 
+            border-radius: 15px; 
+            padding: 20px; 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1); 
+            color: #0E2C46; }
+
+        .table-header-control { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; }
+
+        .search-box { 
+            display: flex; 
+            background: white; 
+            border: 2px solid #0E2C46; 
+            border-radius: 25px; 
+            overflow: hidden; 
+            padding: 2px; 
+            width: 100%; 
+            max-width: 350px; }
+
+        .search-box input { 
+            border: none; 
+            padding: 8px 15px; 
+            outline: none; 
+            flex-grow: 1; 
+            font-size: 0.95rem; }
+
+        .search-box button { 
+            background: #0E2C46; 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            order-radius: 23px; 
+            cursor: pointer; }
+
+        .book-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left; 
+            font-size: 1.05rem; }
+
+        .book-table th { 
+            background-color: #0E2C46; 
+            color: white; 
+            padding: 12px 15px; 
+            font-size: 1.1rem; }
+
+        .book-table td { 
+            padding: 10px 15px; 
+            border-bottom: 1px solid rgba(14, 44, 70, 0.2); 
+            background-color: rgba(255, 255, 255, 0.3); 
+            vertical-align: middle; }
+
+        .book-table tr:hover td { 
+            background-color: rgba(252, 157, 1, 0.1); }
+
+        .book-cover-cell { 
+            width: 50px; 
+            height: auto; 
+            border-radius: 4px; 
+            border: 1px solid #0E2C46; }
+
+        .stock-indicator { 
+            font-weight: bold; 
+            padding: 2px 6px; 
+            border-radius: 4px; }
+
+        .stock-indicator.low { 
+            background-color: #fecaca; 
+            color: #991b1b; }
+
+        .stock-indicator.good { 
+            background-color: #bbf7d0; 
+            color: #166534; }
+
+        .action-cell { 
+            display: flex; 
+            gap: 8px; }
+
+        .btn-table { 
+            padding: 6px 12px; 
+            border: 1px solid #0E2C46; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            font-weight: bold; 
+            transition: all 0.2s; 
+            text-decoration: none; }
+
+        .btn-table.edit { 
+            background-color: #FC9D01; 
+            color: #0E2C46; }
+
+        .btn-table.edit:hover { 
+            background-color: #e08b00; }
+
+        .btn-table.delete { 
+            background-color: #ef4444; 
+            color: white; 
+            border-color: #ef4444; }
+
+        .btn-table.delete:hover { 
+            background-color: #dc2626; }
+            
     </style>
 </head>
 <body>
@@ -202,7 +477,7 @@ $books = $conn->query("SELECT * FROM books ORDER BY id DESC");
             <section class="upper-management-grid">
                 <div class="panel-box">
                     <h3><i class="fas fa-plus-circle"></i> Register New Book Product</h3>
-                    <form class="book-form" method="POST" action="Admin/ad_ManageBook.php" enctype="multipart/form-data">
+                    <form class="book-form" method="POST" action="/DreamBoundBookStrore_system/Admin/ad_ManageBook.php" enctype="multipart/form-data">
                         <div class="form-group full-width">
                             <label>Book Title</label>
                             <input type="text" name="title" id="bookTitle" placeholder="Enter full literary title..." required>
@@ -296,7 +571,7 @@ $books = $conn->query("SELECT * FROM books ORDER BY id DESC");
                         <?php if($books && $books->num_rows > 0): ?>
                             <?php while($row = $books->fetch_assoc()): ?>
                                 <tr>
-                                    <td><img src="../img/<?php echo !empty($row['book_img']) ? $row['book_img'] : 'book1.jpg'; ?>" alt="Cover" class="book-cover-cell" onerror="this.src='../img/logo1.png'"></td>
+                                    <td><img src="../<?php echo !empty($row['book_img']) ? $row['book_img'] : 'book1.jpg'; ?>" alt="Cover" class="book-cover-cell" onerror="this.src='../img/logo1.png'"></td>
                                     <td><strong><?php echo htmlspecialchars($row['title']); ?></strong></td>
                                     <td><?php echo htmlspecialchars($row['author']); ?></td>
                                     <td><?php echo htmlspecialchars($row['genre']); ?></td>
@@ -327,16 +602,16 @@ $books = $conn->query("SELECT * FROM books ORDER BY id DESC");
     </div>
 
     <script>
-        // Mesej Alert PHP dipaparkan menggunakan JavaScript (Sama seperti gaya popup HTML asal anda)
+        // PHP alert messages are rendered through JavaScript, maintaining the same popup appearance as in the original HTML implementation.
         <?php if(!empty($alert_message)): ?>
             alert("<?php echo $alert_message; ?>");
         <?php endif; ?>
 
-        // Operasi kemas kini maklumat buku (Hanya tukar harga menggunakan PROMPT asal)
+        // Book information update operation (Only the book price is updated while retaining the original PROMPT).
         function triggerEdit(bookId, bookName, currentPrice) {
             let newPrice = prompt("Update price for \"" + bookName + "\":", currentPrice);
             if (newPrice != null && !isNaN(newPrice)) {
-                // Menghantar arahan kemas kini ke PHP melalui URL
+                // Transmits the update command to the PHP script through a URL request.
                 window.location.href = "ad_ManageBook.php?edit_id=" + bookId + "&new_price=" + newPrice;
             }
         }

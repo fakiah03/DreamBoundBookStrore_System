@@ -61,56 +61,317 @@ $orders_result = $conn->query($sql_orders);
     
     <style>
        
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Englebert', cursive, sans-serif; }
-        body { background-color: #FC9D01; display: flex; height: 100vh; overflow: hidden; }
-        .container { display: flex; width: 100%; height: 100vh; }
-        .sidebar { width: 280px; background-color: #0E2C46; color: white; display: flex; flex-direction: column; padding: 30px 0; box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2); flex-shrink: 0; }
-        .profile-section { text-align: center; padding: 0 20px 25px 20px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); }
-        .logo-img { width: 150px; margin-bottom: 10px; }
-        .profile-section h3 { font-size: 1.4rem; letter-spacing: 1px; color: #ffffff; }
-        .subtitle { font-size: 0.8rem; color: #FC9D01; letter-spacing: 2px; margin-bottom: 15px; }
-        .user-info { background-color: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; font-size: 0.95rem; }
-        .nav-links { list-style: none; margin-top: 25px; flex-grow: 1; padding: 0 15px; }
-        .nav-links li { margin-bottom: 8px; }
-        .nav-links li a { text-decoration: none; color: #ffffff; font-size: 1.05rem; display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 8px; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.05); }
-        .nav-links li.active a, .nav-links li a:hover { background: #FC9D01; color: #0E2C46; font-weight: bold; transform: translateX(5px); }
-        .logout-container { padding: 0 15px; }
-        .btn-logout { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #FC9D01; cursor: pointer; background: transparent; color: #FC9D01; font-size: 1.1rem; font-weight: bold; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-logout:hover { background: #FC9D01; color: #0E2C46; }
-        .main-content { flex-grow: 1; background-color: #FC9D01; padding: 30px; overflow-y: auto; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .page-title { font-size: 2.5rem; color: #0E2C46; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
-        .order-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .order-stat-card { background-color: #FDF5E6; border: 2px solid #0E2C46; border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: #0E2C46; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .order-stat-card h4 { font-size: 0.95rem; color: #555; }
-        .order-stat-card p { font-size: 1.6rem; font-weight: bold; }
-        .order-stat-card i { font-size: 1.8rem; color: #FC9D01; background: #0E2C46; padding: 10px; border-radius: 50%; }
-        .control-panel { background-color: #FDF5E6; border: 2px solid #0E2C46; border-radius: 15px; padding: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .filter-tabs { display: flex; gap: 10px; }
-        .tab-btn { padding: 8px 16px; border: 2px solid #0E2C46; background: white; color: #0E2C46; border-radius: 20px; cursor: pointer; font-size: 0.95rem; font-weight: bold; transition: all 0.2s; }
-        .tab-btn.active, .tab-btn:hover { background: #0E2C46; color: white; }
-        .search-box { display: flex; background: white; border: 2px solid #0E2C46; border-radius: 25px; overflow: hidden; padding: 2px; width: 100%; max-width: 350px; }
-        .search-box input { border: none; padding: 8px 15px; outline: none; flex-grow: 1; font-size: 0.95rem; }
-        .search-box button { background: #0E2C46; color: white; border: none; padding: 8px 15px; border-radius: 23px; cursor: pointer; }
-        .table-panel { background-color: #FDF5E6; border: 2px solid #0E2C46; border-radius: 15px; padding: 20px; box-shadow: 0 6px 12px rgba(0,0,0,0.1); color: #0E2C46; overflow-x: auto; }
-        .order-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 1.05rem; }
-        .order-table th { background-color: #0E2C46; color: white; padding: 12px 15px; font-size: 1.1rem; }
-        .order-table td { padding: 12px 15px; border-bottom: 1px solid rgba(14, 44, 70, 0.2); background-color: rgba(255, 255, 255, 0.3); }
-        .order-table tr:hover td { background-color: rgba(252, 157, 1, 0.1); }
-        .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-align: center; display: inline-block; }
-        .status-badge.pending { background-color: #fef08a; color: #854d0e; border: 1px solid #ca8a04; }
-        .status-badge.shipped { background-color: #bfdbfe; color: #1e40af; border: 1px solid #3b82f6; }
-        .status-badge.delivered { background-color: #bbf7d0; color: #166534; border: 1px solid #22c55e; }
-        .status-badge.cancelled { background-color: #fecaca; color: #991b1b; border: 1px solid #ef4444; }
-        .action-cell { display: flex; gap: 8px; }
-        .btn-table { padding: 6px 12px; border: 1px solid #0E2C46; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: all 0.2s; }
-        .btn-table.view { background-color: #0E2C46; color: white; }
-        .btn-table.view:hover { background-color: #1a446c; }
-        .btn-table.update { background-color: #FC9D01; color: #0E2C46; }
-        .btn-table.update:hover { background-color: #e08b00; }
-        .pagination { display: flex; justify-content: flex-end; margin-top: 20px; gap: 5px; }
-        .page-node { padding: 6px 12px; border: 1px solid #0E2C46; background: white; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .page-node.active, .page-node:hover { background-color: #0E2C46; color: white; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Englebert', cursive, sans-serif; }
+
+        body { 
+            background-color: #FC9D01; 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; }
+
+        .container { 
+            display: flex; 
+            width: 100%; 
+            height: 100vh; }
+            
+        .sidebar { 
+            width: 280px; 
+            background-color: #0E2C46; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 30px 0; 
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2); 
+            flex-shrink: 0; }
+
+        .profile-section { 
+            text-align: center; 
+            padding: 0 20px 25px 20px; 
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1); }
+
+        .logo-img { 
+            width: 150px; 
+            margin-bottom: 10px; }
+
+        .profile-section h3 { 
+            font-size: 1.4rem; 
+            letter-spacing: 1px; 
+            color: #ffffff; }
+
+        .subtitle { 
+            font-size: 0.8rem; 
+            color: #FC9D01; 
+            letter-spacing: 2px; 
+            margin-bottom: 15px; }
+            
+        .user-info { 
+            background-color: rgba(255, 255, 255, 0.1); 
+            padding: 10px; 
+            border-radius: 8px; 
+            font-size: 0.95rem; }
+
+        .nav-links { 
+            list-style: none; 
+            margin-top: 25px; 
+            flex-grow: 1; 
+            padding: 0 15px; }
+
+        .nav-links li { 
+            margin-bottom: 8px; }
+
+        .nav-links li a { 
+            text-decoration: none; 
+            color: #ffffff; 
+            font-size: 1.05rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            transition: all 0.3s ease; 
+            background: rgba(255, 255, 255, 0.05); }
+
+        .nav-links li.active a, .nav-links li a:hover { 
+            background: #FC9D01; 
+            color: #0E2C46; 
+            font-weight: bold; 
+            transform: translateX(5px); }
+
+        .logout-container { 
+            padding: 0 15px; }
+
+        .btn-logout { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 2px solid #FC9D01; 
+            cursor: pointer; 
+            background: transparent; 
+            color: #FC9D01; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; }
+
+        .btn-logout:hover { 
+            background: #FC9D01; 
+            color: #0E2C46; }
+
+        .main-content { 
+            flex-grow: 1; 
+            background-color: #FC9D01; 
+            padding: 30px; 
+            overflow-y: auto; }
+
+        .top-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; }
+
+        .page-title { 
+            font-size: 2.5rem; 
+            color: #0E2C46; 
+            margin-bottom: 20px; 
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
+
+        .order-stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px; 
+            margin-bottom: 30px; }
+
+        .order-stat-card { 
+            background-color: #FDF5E6; 
+            border: 2px solid #0E2C46; 
+            border-radius: 12px; 
+            padding: 15px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            color: #0E2C46; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        .order-stat-card h4 { 
+            font-size: 0.95rem; 
+            color: #555; }
+
+        .order-stat-card p { 
+            font-size: 1.6rem; 
+            font-weight: bold; }
+
+        .order-stat-card i { 
+            font-size: 1.8rem; 
+            color: #FC9D01; 
+            background: #0E2C46; 
+            padding: 10px; 
+            border-radius: 50%; }
+
+        .control-panel { 
+            background-color: #FDF5E6; 
+            border: 2px solid #0E2C46; 
+            border-radius: 15px; 
+            padding: 20px; 
+            margin-bottom: 25px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+        .filter-tabs { 
+            display: flex; 
+            gap: 10px; }
+
+        .tab-btn { 
+            padding: 8px 16px; 
+            border: 2px solid #0E2C46; 
+            background: white; 
+            color: #0E2C46; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-size: 0.95rem; 
+            font-weight: bold; 
+            transition: all 0.2s; }
+
+        .tab-btn.active, .tab-btn:hover { 
+            background: #0E2C46; 
+            color: white; }
+
+        .search-box { 
+            display: flex; 
+            background: white; 
+            border: 2px solid #0E2C46;
+            border-radius: 25px; 
+            overflow: hidden; 
+            padding: 2px; 
+            width: 100%; 
+            max-width: 350px; }
+
+        .search-box input { 
+            border: none; 
+            padding: 8px 15px; 
+            outline: none; 
+            flex-grow: 1; 
+            font-size: 0.95rem; }
+
+        .search-box button { 
+            background: #0E2C46; 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 23px; 
+            cursor: pointer; }
+
+        .table-panel { 
+            background-color: #FDF5E6; 
+            border: 2px solid #0E2C46; 
+            border-radius: 15px; 
+            padding: 20px; 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1); 
+            color: #0E2C46; 
+            overflow-x: auto; }
+
+        .order-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left; 
+            font-size: 1.05rem; }
+
+        .order-table th { 
+            background-color: #0E2C46; 
+            color: white; 
+            padding: 12px 15px; 
+            font-size: 1.1rem; }
+
+        .order-table td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid rgba(14, 44, 70, 0.2); 
+            background-color: rgba(255, 255, 255, 0.3); }
+
+        .order-table tr:hover td { 
+            background-color: rgba(252, 157, 1, 0.1); }
+
+        .status-badge { 
+            padding: 5px 10px; 
+            border-radius: 6px; 
+            font-size: 0.85rem; 
+            font-weight: bold; 
+            text-align: center; 
+            display: inline-block; }
+
+        .status-badge.pending { 
+            background-color: #fef08a; 
+            color: #854d0e; 
+            border: 1px solid #ca8a04; }
+
+        .status-badge.shipped { 
+            background-color: #bfdbfe; 
+            color: #1e40af; 
+            border: 1px solid #3b82f6; }
+
+        .status-badge.delivered { 
+            background-color: #bbf7d0; 
+            color: #166534; 
+            border: 1px solid #22c55e; }
+
+        .status-badge.cancelled { 
+            background-color: #fecaca; 
+            color: #991b1b; 
+            border: 1px solid #ef4444; }
+
+        .action-cell { 
+            display: flex; 
+            gap: 8px; }
+
+        .btn-table { 
+            padding: 6px 12px; 
+            border: 1px solid #0E2C46; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            font-weight: bold; 
+            transition: all 0.2s; }
+
+        .btn-table.view { 
+            background-color: #0E2C46; 
+            color: white; }
+
+        .btn-table.view:hover { 
+            background-color: #1a446c; }
+
+        .btn-table.update { 
+            background-color: #FC9D01; 
+            color: #0E2C46; }
+
+        .btn-table.update:hover { 
+            background-color: #e08b00; }
+
+        .pagination { 
+            display: flex; 
+            justify-content: flex-end; 
+            margin-top: 20px; gap: 5px; }
+
+        .page-node { 
+            padding: 6px 12px; 
+            border: 1px solid #0E2C46; 
+            background: white; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            font-weight: bold; }
+
+        .page-node.active, .page-node:hover { 
+            background-color: #0E2C46; 
+            color: white; }
+            
     </style>
 </head>
 <body>

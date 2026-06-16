@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once '../db.php'; 
+require_once '../db.php'; // Sambungan ke database
 
-// 1. SECURITY RESTRICTION: Ensure that the customer is logged in.
+// 1. SEKATAN KESELAMATAN: Pastikan pelanggan sudah log masuk
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
     header("Location: ../Auth/login.php");
     exit();
@@ -11,8 +11,16 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
 $user_id = $_SESSION['user_id'];
 $fullname = $_SESSION['fullname'] ?? 'Customer';
 
+// (PILIHAN) Cipta jadual troli secara automatik jika belum wujud dalam database
+$conn->query("CREATE TABLE IF NOT EXISTS cart (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    book_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
 
-// 2. Action handler for updating cart items (increase, decrease, remove)
+// 2. PROSES TINDAKAN TROLI (Tambah, Tolak, Padam)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $cart_id = intval($_POST['cart_id']);
     $action = $_POST['action'];
@@ -25,24 +33,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $conn->query("DELETE FROM cart WHERE id = $cart_id AND user_id = $user_id");
     }
     
-    // Refresh the page to reflect changes
+    // Refresh halaman untuk mengemas kini pengiraan
     header("Location: cust_cart.php");
     exit();
 }
 
-// 3. TAKE SHIPPING FEE FROM DATABASE
-$shipping_fee = 5.00; 
+// 3. AMBIL KADAR PENGHANTARAN DARI STORE SETTINGS (Yang telah kita buat sebelum ini)
+$shipping_fee = 5.00; // Nilai lalai
 $setting_query = $conn->query("SELECT ship_semenanjung FROM store_settings LIMIT 1");
 if ($setting_query && $setting_query->num_rows > 0) {
     $store_data = $setting_query->fetch_assoc();
     $shipping_fee = $store_data['ship_semenanjung'];
 }
 
-// 4. TAKE ITEM DATA FROM THE CUSTOMER'S CART
+// 4. AMBIL DATA ITEM DALAM TROLI PELANGGAN INI
 $cart_query = $conn->query("
-    SELECT c.id as cart_id, c.quantity, b.title, b.author, b.price, b.book_img 
-    FROM cart c 
-    JOIN books b ON c.book_id = b.id 
+    SELECT c.id as cart_id, c.quantity,
+           COALESCE(c.format, 'paperback') as format,
+           b.title, b.author, b.book_img,
+           CASE COALESCE(c.format,'paperback')
+               WHEN 'hardcover' THEN COALESCE(b.price_hardcover, ROUND(b.price * 1.30, 2))
+               WHEN 'ebook'     THEN COALESCE(b.price_ebook,     ROUND(b.price * 0.60, 2))
+               ELSE                  COALESCE(b.price_paperback, b.price)
+           END AS price
+    FROM cart c
+    JOIN books b ON c.book_id = b.id
     WHERE c.user_id = $user_id
 ");
 
@@ -58,7 +73,7 @@ if ($cart_query && $cart_query->num_rows > 0) {
     }
 }
 
-// if cart is empty, set shipping fee to 0
+// Jika troli kosong, kos penghantaran patut jadi RM0
 if ($total_items == 0) {
     $shipping_fee = 0;
 }
@@ -76,7 +91,7 @@ $total_price = $subtotal + $shipping_fee;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        
+        /* REKA BENTUK CSS ASAL ANDA DIKEKALKAN 100% */
         :root {
             --primary-blue: #0A2647;
             --accent-orange: #F29400;
@@ -311,6 +326,13 @@ $total_price = $subtotal + $shipping_fee;
                                                 <div class="book-info">
                                                     <h3><?php echo htmlspecialchars($item['title']); ?></h3>
                                                     <p class="author"><?php echo htmlspecialchars($item['author']); ?></p>
+                                                    <?php
+                                                        $fmt = $item['format'] ?? 'paperback';
+                                                        $fmt_label = $fmt === 'ebook' ? 'E-Book' : ucfirst($fmt);
+                                                        $fmt_colors = ['paperback'=>'#0369a1;background:#e0f2fe','hardcover'=>'#92400e;background:#fef3c7','ebook'=>'#166534;background:#dcfce7'];
+                                                        $fmt_style = $fmt_colors[$fmt] ?? $fmt_colors['paperback'];
+                                                    ?>
+                                                    <span style="font-size:11px;font-weight:bold;padding:2px 8px;border-radius:20px;color:<?php echo $fmt_style; ?>"><?php echo $fmt_label; ?></span>
                                                 </div>
                                             </div>
                                         </td>

@@ -876,11 +876,11 @@ $staff_list_result = $conn->query("SELECT fullname, role FROM users WHERE role I
     </div>
 
     <script>
-    function muatTurunLogLive() {
+    function loadLiveLogs() {
         fetch('get_live_logs.php')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Fail get_live_logs.php tidak dijumpai (404)');
+                    throw new Error('Error 404: The get_live_logs.php file could not be found.');
                 }
                 return response.text();
             })
@@ -891,15 +891,15 @@ $staff_list_result = $conn->query("SELECT fullname, role FROM users WHERE role I
                 }
             })
             .catch(error => {
-                console.error('Masalah Log:', error);
+                console.error('Log Issue:', error);
                 document.getElementById('log-box').innerHTML = 
                     '<div class="log-line" style="color:red;">[ERROR]: ' + error.message + '</div>';
             });
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        muatTurunLogLive();
-        setInterval(muatTurunLogLive, 3000);
+        loadLiveLogs();
+        setInterval(loadLiveLogs, 3000);
     });
 
     function confirmLogout() {
