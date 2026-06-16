@@ -116,12 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             $_SESSION['last_pay_method']   = $pay_method;
             $_SESSION['last_order_total']  = $total;
 
-            // QR payment → show QR modal; Card → straight to success
-            if ($pay_method === 'qr') {
-                header("Location: cust_payment.php?show_qr=1");
-            } else {
-                header("Location: cust_orders.php?order_success=$order_id");
-            }
+            // Both payment methods go straight to success (QR modal is shown client-side before submit)
+            header("Location: cust_orders.php?order_success=$order_id");
             exit();
 
         } catch (Exception $e) {
@@ -131,14 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     }
 }
 
-// After QR modal "Done" → redirect to orders
-if (isset($_GET['qr_done'])) {
-    $oid = $_SESSION['last_order_id'] ?? 0;
-    header("Location: cust_orders.php?order_success=$oid");
-    exit();
-}
-
-$show_qr = isset($_GET['show_qr']) && isset($_SESSION['last_order_id']);
+// $show_qr no longer needed — QR modal is triggered client-side before form submission
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -418,13 +407,14 @@ $show_qr = isset($_GET['show_qr']) && isset($_SESSION['last_order_id']);
 </div>
 
 <!-- ── QR Modal ── -->
-<div id="qrModalOverlay" class="modal-overlay <?php echo $show_qr ? 'active' : ''; ?>">
+<div id="qrModalOverlay" class="modal-overlay">
     <div class="qr-modal">
         <h3>Scan to Pay</h3>
         <p>Scan this QR code with your banking app, then tap <strong>Done</strong>.</p>
         <div class="qr-image-container">
-            <img src="../img/payment_qr.png" alt="Payment QR Code"
-                 onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23eee%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2214%22 fill=%22%23999%22>Place your QR here</text></svg>'">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Dreambound+Bookstore+Payment" 
+                alt="Payment QR Code"
+                onerror="this.src='../img/logo1.png'">
         </div>
         <button class="close-modal-btn" onclick="qrDone()"><i class="fas fa-check"></i> Done – I've Paid</button>
     </div>
@@ -530,6 +520,7 @@ $show_qr = isset($_GET['show_qr']) && isset($_SESSION['last_order_id']);
 
     function validateAndSubmit() {
         const mode = document.getElementById('hiddenPayment').value;
+
         if (mode === 'card') {
             const num = document.querySelector('[name="card_number"]').value.replace(/\s/g,'');
             const exp = document.querySelector('[name="card_expiry"]').value;
@@ -537,12 +528,22 @@ $show_qr = isset($_GET['show_qr']) && isset($_SESSION['last_order_id']);
             if (num.length < 16) { alert('Please enter a valid 16-digit card number.'); return false; }
             if (exp.length < 7)  { alert('Please enter a valid expiration date (MM / YY).'); return false; }
             if (cvc.length < 3)  { alert('Please enter a valid security code.'); return false; }
+            return true; // card: submit form normally
         }
+
+        if (mode === 'qr') {
+            // Show QR modal immediately — form submits only after user clicks "Done"
+            document.getElementById('qrModalOverlay').classList.add('active');
+            return false; // prevent form submission for now
+        }
+
         return true;
     }
 
     function qrDone() {
-        window.location.href = 'cust_payment.php?qr_done=1';
+        // User has scanned and paid — now submit the form to place the order
+        document.getElementById('qrModalOverlay').classList.remove('active');
+        document.getElementById('checkoutForm').submit();
     }
 
     window.onload = function() {
