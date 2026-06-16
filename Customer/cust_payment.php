@@ -414,7 +414,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         <div class="qr-image-container">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Dreambound+Bookstore+Payment" 
                 alt="Payment QR Code"
-                onerror="this.src='../img/logo1.png'">
+                onerror="this.src='../img/qr.jpg'">
         </div>
         <button class="close-modal-btn" onclick="qrDone()"><i class="fas fa-check"></i> Done – I've Paid</button>
     </div>
