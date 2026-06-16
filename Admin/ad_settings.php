@@ -117,9 +117,10 @@ $store_info = $store_query->fetch_assoc();
         }
 
         /* --- SIDEBAR STYLE --- */
-        .sidebar {
+         .sidebar {
             width: 280px;
             background-color: #0E2C46; 
+            color: white;
             display: flex;
             flex-direction: column;
             padding: 30px 0;
@@ -181,7 +182,7 @@ $store_info = $store_query->fetch_assoc();
             transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.05);
         }
-
+        
         .nav-links li.active a,
         .nav-links li a:hover {
             background: #FC9D01;
