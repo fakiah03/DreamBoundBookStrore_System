@@ -7,7 +7,7 @@ if (isset($_SESSION['fullname'])) {
     $nama = $_SESSION['fullname'];
     $role = isset($_SESSION['role']) ? ucfirst($_SESSION['role']) : 'Pengguna';
     
-    $log_msg = "$role $nama telah log keluar daripada sistem.";
+    $log_msg = "$role $nama logged out of the system.";
     $conn->query("INSERT INTO system_logs (log_message) VALUES ('$log_msg')");
 }
 
