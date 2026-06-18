@@ -11,9 +11,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
 $user_id = $_SESSION['user_id'];
 $fullname = $_SESSION['fullname'] ?? 'Customer';
 
-// 2. AMBIL DATA PESANAN DARI DATABASE
-// NOTA: Kod ini mengandaikan anda mempunyai jadual `orders`, `order_items`, dan `books`.
-// Jika nama jadual anda berbeza, anda hanya perlu tukar nama jadual dalam SQL ini.
+// 2. FETCH ORDER DATA FROM THE DATABASE
+// NOTE: This code assumes the existence of the `orders`, `order_items`, and `books` tables.
+// If your database uses different table names, update the SQL query accordingly.
 $sql_orders = "
     SELECT 
         o.id AS order_id, 
@@ -29,7 +29,7 @@ $sql_orders = "
     ORDER BY o.created_at DESC
 ";
 
-// Memastikan tiada ralat sekiranya jadual belum dibina
+// Avoids errors in case the table has not been built yet.
 $orders_list = [];
 try {
     $result = $conn->query($sql_orders);
@@ -39,7 +39,7 @@ try {
         }
     }
 } catch (mysqli_sql_exception $e) {
-    // Abaikan jika jadual belum ada, ia akan memaparkan senarai kosong sahaja.
+    // Ignore this if the table hasn't been created yet; an empty list will be displayed.
 }
 ?>
 <!DOCTYPE html>
@@ -119,7 +119,7 @@ try {
         .menu { width: 100%; }
 
          .menu ul {
-            list-style: none; /* Buang titik hitam */
+            list-style: none; 
             padding: 0;
             margin: 0;
             width: 100%;
@@ -358,9 +358,9 @@ try {
                     <tbody>
                         <?php if (count($orders_list) > 0): ?>
                             <?php foreach ($orders_list as $order): 
-                                // Tetapkan warna / class badge berdasarkan teks status di dalam database
+                                
                                 $status_db = strtolower($order['status']);
-                                $badge_class = 'waiting'; // Lalai
+                                $badge_class = 'waiting'; 
                                 
                                 if (strpos($status_db, 'deliver') !== false) {
                                     $badge_class = 'delivered';

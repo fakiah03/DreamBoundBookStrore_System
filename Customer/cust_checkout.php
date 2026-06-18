@@ -135,11 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         }
     }
 }
-
-// ============================================================
 // STEP 2: LOAD DATA FOR DISPLAY
-// ============================================================
-
 // Get cart items to display
 $cart_result = $conn->query("
     SELECT c.id as cart_id, c.quantity, b.id as book_id, b.title, b.author, b.price, b.book_img, b.stock

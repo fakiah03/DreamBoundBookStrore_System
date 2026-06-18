@@ -397,24 +397,24 @@ if (isset($_SESSION['user_id'])) {
             <h2>Featured Books</h2>
             <div class="book-grid">
                 <div class="book-card">
-                    <img src="img/book1.jpg" alt="The Great Gatsby">
-                    <h3>The Great Gatsby</h3>
-                    <p>F. Scott Fitzgerald</p>
+                    <img src="img/book1.jpg" alt="Not Here To Be Liked">
+                    <h3>Not Here To Be Liked</h3>
+                    <p>Michelle Quach</p>
                 </div>
                 <div class="book-card">
-                    <img src="img/book2.jpg" alt="Atomic Habits">
-                    <h3>Atomic Habits</h3>
-                    <p>James Clear</p>
+                    <img src="img/book2.jpg" alt="Why Don't We">
+                    <h3>Why Don't We</h3>
+                    <p>Winter Sonata</p>
                 </div>
                 <div class="book-card">
-                    <img src="img/book3.jpg" alt="To Kill A Mockingbird">
-                    <h3>To Kill A Mockingbird</h3>
-                    <p>Harper Lee</p>
+                    <img src="img/book3.jpg" alt="Lovers By The Sea">
+                    <h3>Lovers By The Sea</h3>
+                    <p>MimiDaisy</p>
                 </div>
                 <div class="book-card">
-                    <img src="img/book4.jpg" alt="Brave New World">
-                    <h3>Brave New World</h3>
-                    <p>Aldous Huxley</p>
+                    <img src="img/book4.jpg" alt="Lovers By The Sea">
+                    <h3>Lovers By The Sea</h3>
+                    <p>MimiDaisy</p>
                 </div>
             </div>
 

@@ -1,8 +1,7 @@
 <?php
 session_start();
-require_once '../db.php'; // Sambungan ke database
+require_once '../db.php'; 
 
-// 1. SEKATAN KESELAMATAN: Pastikan pelanggan sudah log masuk
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
     header("Location: ../Auth/login.php");
     exit();
@@ -11,16 +10,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
 $user_id = $_SESSION['user_id'];
 $fullname = $_SESSION['fullname'] ?? 'Customer';
 
-// (PILIHAN) Cipta jadual troli secara automatik jika belum wujud dalam database
-$conn->query("CREATE TABLE IF NOT EXISTS cart (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    book_id INT NOT NULL,
-    quantity INT DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)");
 
-// 2. PROSES TINDAKAN TROLI (Tambah, Tolak, Padam)
+// 2. Cart Operations (Add, Decrease Quantity, Remove Item)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $cart_id = intval($_POST['cart_id']);
     $action = $_POST['action'];
@@ -33,20 +24,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $conn->query("DELETE FROM cart WHERE id = $cart_id AND user_id = $user_id");
     }
     
-    // Refresh halaman untuk mengemas kini pengiraan
+    // Refresh the page to update the calculations.
     header("Location: cust_cart.php");
     exit();
 }
 
-// 3. AMBIL KADAR PENGHANTARAN DARI STORE SETTINGS (Yang telah kita buat sebelum ini)
-$shipping_fee = 5.00; // Nilai lalai
+// 3. Fetch the shipping rate from Store Settings (previously set up).
+$shipping_fee = 5.00; 
 $setting_query = $conn->query("SELECT ship_semenanjung FROM store_settings LIMIT 1");
 if ($setting_query && $setting_query->num_rows > 0) {
     $store_data = $setting_query->fetch_assoc();
     $shipping_fee = $store_data['ship_semenanjung'];
 }
 
-// 4. AMBIL DATA ITEM DALAM TROLI PELANGGAN INI
+// 4. Retrieve the cart items for this customer.
 $cart_query = $conn->query("
     SELECT c.id as cart_id, c.quantity,
            COALESCE(c.format, 'paperback') as format,
@@ -73,7 +64,7 @@ if ($cart_query && $cart_query->num_rows > 0) {
     }
 }
 
-// Jika troli kosong, kos penghantaran patut jadi RM0
+// If the cart is empty, set the shipping cost to RM0.
 if ($total_items == 0) {
     $shipping_fee = 0;
 }
@@ -91,7 +82,7 @@ $total_price = $subtotal + $shipping_fee;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* REKA BENTUK CSS ASAL ANDA DIKEKALKAN 100% */
+       
         :root {
             --primary-blue: #0A2647;
             --accent-orange: #F29400;
@@ -158,7 +149,7 @@ $total_price = $subtotal + $shipping_fee;
         .menu { width: 100%; }
 
          .menu ul {
-            list-style: none; /* Buang titik hitam */
+            list-style: none; 
             padding: 0;
             margin: 0;
             width: 100%;
@@ -226,7 +217,7 @@ $total_price = $subtotal + $shipping_fee;
         .book-info .author { color: #94a3b8; font-size: 14px; }
         .item-price { font-size: 18px; color: var(--primary-blue); font-weight: bold; }
 
-        /* Kumpulan Borang untuk Butang */
+       
         form.inline-form { display: inline-flex; align-items: center; }
 
         .quantity-control { display: flex; align-items: center; gap: 10px; }
@@ -259,7 +250,7 @@ $total_price = $subtotal + $shipping_fee;
 
         .checkout-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(242, 148, 0, 0.3); background: #ffffff; }
         
-        /* Disable checkout button if empty */
+      
         .checkout-btn[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; background: #ccc; box-shadow: none; color: #666; }
 
         .continue-shopping {
@@ -321,7 +312,7 @@ $total_price = $subtotal + $shipping_fee;
                                         <td>
                                             <div class="book-details">
                                                 <div class="cart-img-wrapper">
-                                                    <img src="../img/<?php echo !empty($item['book_img']) ? htmlspecialchars($item['book_img']) : 'book1.jpg'; ?>" alt="Book Cover">
+                                                    <img src="../<?php echo !empty($item['book_img']) ? htmlspecialchars($item['book_img']) : 'book1.jpg'; ?>" alt="Book Cover">
                                                 </div>
                                                 <div class="book-info">
                                                     <h3><?php echo htmlspecialchars($item['title']); ?></h3>
