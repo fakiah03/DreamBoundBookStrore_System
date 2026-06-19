@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // 3. $checkEmail->bind_param("s", $email);Apply password encryption (for security).
+    $checkEmail->bind_param("s", $email); //Apply password encryption (for security).
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // 4. Verify duplicate email registration using a prepared statement.
