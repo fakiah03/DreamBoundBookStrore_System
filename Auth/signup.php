@@ -18,14 +18,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<script>alert('Passwords do not match!'); window.location.href='signup.php';</script>";
         exit();
     }
-
-    $checkEmail->bind_param("s", $email); //Apply password encryption (for security).
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
     // 4. Verify duplicate email registration using a prepared statement.
     $checkEmail = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    $checkEmail->bind_param("s", $email);
     $checkEmail->execute();
     $result = $checkEmail->get_result();
+
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT); // can happen anytime before the INSERT
 
     if ($result->num_rows > 0) {
         echo "<script>alert('This email is already registered!'); window.location.href='signup.php';</script>";
