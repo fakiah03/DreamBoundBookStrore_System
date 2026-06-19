@@ -3,53 +3,63 @@ session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+// 1. KELUAR SATU FOLDER UNTUK JUMPA db.php
 require_once '../db.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get form data from the HTML form.
+    // Ambil data dari borang HTML
     $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = $_POST['password'];
     $confirmPassword = $_POST['confirmPassword'];
     $phone = mysqli_real_escape_string($conn, $_POST['phone']);
 
-    // Verify that the password values match.
+    // 2. SEMAK KATA LALUAN SEPADAN
     if ($password !== $confirmPassword) {
         echo "<script>alert('Passwords do not match!'); window.location.href='signup.php';</script>";
         exit();
     }
-    // 4. Verify duplicate email registration using a prepared statement.
+
+    // 3. ENKRIPSI KATA LALUAN (Untuk Keselamatan)
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // 4. SEMAK JIKA EMEL DAFTAR KALI KEDUA (Prepared Statement)
     $checkEmail = $conn->prepare("SELECT id FROM users WHERE email = ?");
     $checkEmail->bind_param("s", $email);
     $checkEmail->execute();
     $result = $checkEmail->get_result();
-
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT); // can happen anytime before the INSERT
 
     if ($result->num_rows > 0) {
         echo "<script>alert('This email is already registered!'); window.location.href='signup.php';</script>";
         $checkEmail->close();
         exit();
     }
-    $checkEmail->close(); 
+    $checkEmail->close(); // Tutup statement semak email setelah selesai digunakan
+
+    // =========================================================
+    // TAMBAHAN: JANA CUSTOMER ID STR SECARA AUTOMATIK & TIER
+    // =========================================================
     $res_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'customer'");
     $row_count = $res_count->fetch_assoc();
     $next_id_num = $row_count['total'] + 1;
     
-    // Generate sequential IDs in the format #CUST-0001, #CUST-0002, etc.
+    // Menghasilkan format: #CUST-0001, #CUST-0002, dan seterusnya
     $customer_id_str = "#CUST-" . str_pad($next_id_num, 4, "0", STR_PAD_LEFT);
-    $membership_tier = "Regular"; // Set default membership status for new user registrations
-    // 5. SQL query to add a new user (updated to align with the current database schema).
+    $membership_tier = "Regular"; // Status ahli lalai untuk pendaftaran baharu
+    // =========================================================
+
+    // 5. QUERY UNTUK MASUKKAN PENGGUNA BAHARU (DIUBAH UNTUK SESUAIKAN LAJUR DATABASE TERKINI)
     $sql_register = "INSERT INTO users (customer_id_str, fullname, email, password, phone, role, membership_tier) 
                      VALUES ('$customer_id_str', '$fullname', '$email', '$hashed_password', '$phone', 'customer', '$membership_tier')";
 
     if ($conn->query($sql_register) === TRUE) {
         
-        // 6. Log new user registration activity into the system_logs table.
+        // 6. REKOD PENDAFTARAN BAHARU KE JADUAL SYSTEM_LOGS
         $log_msg = "New user $fullname ($email) has registered with ID $customer_id_str.";
         $conn->query("INSERT INTO system_logs (log_message) VALUES ('$log_msg')");
 
-        // 7. Implement auto-login by setting session data and redirecting the customer to cust_home.php.
+        // 7. AUTO LOGIN — set session so customer lands on cust_home.php directly
         $new_user_id = $conn->insert_id;
         $_SESSION['user_id']  = $new_user_id;
         $_SESSION['fullname'] = $fullname;
@@ -102,6 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             position: relative;
         }
 
+        /* Elemen Hiasan Terapung Khas Aura Dreambound */
         .bg-blob {
             position: absolute;
             border-radius: 50%;
@@ -143,6 +154,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             z-index: 2;
         }
         
+        /* Bahagian Penjenamaan Kiri */
         .brand-showcase {
             color: #FDF5E6;
             max-width: 45%;
@@ -166,6 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #e0e0e0;
         }
 
+        /* Sign Up Card - Saiz Dioptimumkan Lebih Kemas */
         .signup-card {
             background-color: rgba(14, 44, 70, 0.85); 
             width: 390px;
@@ -215,7 +228,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             box-shadow: 0 0 8px rgba(252, 157, 1, 0.5);
         }
 
-        /* Create Account Dynamic Button */
+        /* Create Account Button Dinamik */
         .create-btn {
             width: 85%;
             padding: 10px;
@@ -237,53 +250,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #0E2C46;
             transform: translateY(-2px);
             box-shadow: 4px 4px 0px #FC9D01;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 12px 0 10px 0;
-            color: #FDF5E6;
-            font-size: 13px;
-        }
-
-        .divider::before, 
-        .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 2px solid rgba(253, 245, 230, 0.3);
-        }
-
-        .divider span {
-            padding: 0 10px;
-        }
-
-        .google-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 8px;
-            background-color: #ffffff;
-            color: #0E2C46;
-            border: 2px solid #0E2C46;
-            border-radius: 20px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 12px;
-        }
-
-        .google-btn img {
-            width: 18px;
-            margin-right: 8px;
-        }
-
-        .google-btn:hover {
-            background-color: #FDF5E6;
-            transform: translateY(-2px);
         }
 
         .login-text {
@@ -350,15 +316,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <button type="submit" class="create-btn">Sign Up</button>
-                
-                <div class="divider">
-                    <span>or sign up with</span>
-                </div>
-
-                <button type="button" class="google-btn">
-                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google logo">
-                    Google
-                </button>
 
                 <div>
                     <p class="login-text">
