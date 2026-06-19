@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 1. Retrieve database connection file
+// 1. Ambil fail sambungan pangkalan data
 require_once '../db.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -18,19 +18,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Verify the entered password with the password in the database (hashed)
+        // Sahkan password yang dimasukkan dengan password dalam database (di-hash)
         if (password_verify($password, $user['password'])) {
             
-            // 1. Store data in Session
+            // 1. Simpan data dalam Session
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['fullname'] = $user['fullname'];
             $_SESSION['role'] = $user['role'];
 
-            // 2.LOG RECORDS ENTERED INTO DATABASE (Data for Live Logs Dashboard)
-            $name = $_SESSION['fullname'];
-            $conn->query("INSERT INTO system_logs (log_message) VALUES ('User $name has logged in.')");
+            // 2. REKOD LOG MASUK KE DATABASE (Data untuk Live Logs Dashboard)
+            $nama = $_SESSION['fullname'];
+            $conn->query("INSERT INTO system_logs (log_message) VALUES ('User $nama has logged in.')");
 
-            // 3. Role-based redirection logic
+            // 3. Logik hala tuju / redirect berdasarkan peranan (Role)
             if ($user['role'] == 'admin') {
                 echo "<script>alert('Welcome Admin!'); window.location.href='../Admin/ad_DashBoard.php';</script>";
             } else {
@@ -146,7 +146,7 @@ $conn->close();
             color: #e0e0e0;
         }
 
-        /* Login Card - Resized to the same size as signup.php */
+        /* Login Card - Disesuaikan saiz sama dengan signup.php */
         .login-card {
             background-color: rgba(14, 44, 70, 0.85); 
             width: 390px;
@@ -218,52 +218,6 @@ $conn->close();
             box-shadow: 4px 4px 0px #FC9D01;
         }
 
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 15px 0 12px 0;
-            color: #FDF5E6;
-            font-size: 13px;
-        }
-
-        .divider::before, 
-        .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 2px solid rgba(253, 245, 230, 0.3);
-        }
-
-        .divider span {
-            padding: 0 10px;
-        }
-
-        .google-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 8px;
-            background-color: #ffffff;
-            color: #0E2C46;
-            border: 2px solid #0E2C46;
-            border-radius: 20px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 15px;
-        }
-
-        .google-btn img {
-            width: 18px;
-            margin-right: 8px;
-        }
-
-        .google-btn:hover {
-            background-color: #FDF5E6;
-            transform: translateY(-2px);
-        }
 
         .links-container {
             margin-top: 10px;
@@ -329,15 +283,6 @@ $conn->close();
                 </div>
 
                 <button type="submit" class="login-btn">Log In</button>
-
-                <div class="divider">
-                    <span>or log in with</span>
-                </div>
-
-                <button type="button" class="google-btn">
-                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google logo">
-                    Google
-                </button>
 
                 <div class="links-container">
                     <a href="forgot_password.php" class="forgot-pass">Forgot Password?</a>
