@@ -1,10 +1,12 @@
 <?php
 $host = "localhost";
-$user = "root";       /* Default user XAMPP */
-$pass = "";           /* Default password XAMPP (kosong) */
+$user = "root";      
+$pass = "";           
 $db_name = "dreambound_db";
+$port = 3307; 
 
-$conn = new mysqli($host, $user, $pass, $db_name);
+// Pass $port as the 5th argument below
+$conn = new mysqli($host, $user, $pass, $db_name, $port);
 
 // Check connection
 if ($conn->connect_error) {
