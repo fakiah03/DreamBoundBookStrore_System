@@ -17,19 +17,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Sahkan password yang dimasukkan dengan password dalam database (di-hash)
+        
         if (password_verify($password, $user['password'])) {
             
-            // 1. Simpan data dalam Session
+            
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['fullname'] = $user['fullname'];
             $_SESSION['role'] = $user['role'];
 
-            // 2. REKOD LOG MASUK KE DATABASE (Data untuk Live Logs Dashboard)
+            
             $nama = $_SESSION['fullname'];
             $conn->query("INSERT INTO system_logs (log_message) VALUES ('User $nama has logged in.')");
 
-            // 3. Logik hala tuju / redirect berdasarkan peranan (Role)
+           
             if ($user['role'] == 'admin') {
                 echo "<script>alert('Welcome Admin!'); window.location.href='../Admin/ad_DashBoard.php';</script>";
             } else {
@@ -58,7 +58,7 @@ $conn->close();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Englebert&display=swap" rel="stylesheet">
     <style>
-        /* Base Reset */
+        
         * {
             margin: 0;
             padding: 0;

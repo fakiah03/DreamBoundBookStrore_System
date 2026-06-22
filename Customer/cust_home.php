@@ -12,11 +12,22 @@ $user_id  = $_SESSION['user_id'];
 $fullname = $_SESSION['fullname'] ?? 'Customer';
 
 // 2. Auto-add format price columns if they don't exist yet (safe migration)
-$conn->query("ALTER TABLE books ADD COLUMN IF NOT EXISTS price_paperback DECIMAL(10,2) DEFAULT NULL");
-$conn->query("ALTER TABLE books ADD COLUMN IF NOT EXISTS price_hardcover DECIMAL(10,2) DEFAULT NULL");
-$conn->query("ALTER TABLE books ADD COLUMN IF NOT EXISTS price_ebook     DECIMAL(10,2) DEFAULT NULL");
-// Auto-add format column to cart if not exists
-$conn->query("ALTER TABLE cart ADD COLUMN IF NOT EXISTS format VARCHAR(20) DEFAULT 'paperback'");
+// NOTE: "ADD COLUMN IF NOT EXISTS" only works on MySQL 8.0.29+/newer MariaDB.
+// This version checks INFORMATION_SCHEMA first so it works on ANY MySQL/MariaDB version (e.g. Laragon, XAMPP).
+function ensure_column_exists($conn, $table, $column, $definition) {
+    $check = $conn->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+                            WHERE TABLE_SCHEMA = DATABASE() 
+                            AND TABLE_NAME = '$table' 
+                            AND COLUMN_NAME = '$column'");
+    if ($check && $check->num_rows === 0) {
+        $conn->query("ALTER TABLE $table ADD COLUMN $column $definition");
+    }
+}
+
+ensure_column_exists($conn, 'books', 'price_paperback', "DECIMAL(10,2) DEFAULT NULL");
+ensure_column_exists($conn, 'books', 'price_hardcover', "DECIMAL(10,2) DEFAULT NULL");
+ensure_column_exists($conn, 'books', 'price_ebook',     "DECIMAL(10,2) DEFAULT NULL");
+ensure_column_exists($conn, 'cart',  'format',           "VARCHAR(20) DEFAULT 'paperback'");
 
 // 3. PROCESS ADD TO CART / BUY NOW
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['add_to_cart']) || isset($_POST['buy_now']))) {
