@@ -784,13 +784,14 @@ $staff_list_result = $conn->query("SELECT fullname, role FROM users WHERE role I
                 <div class="panel-box">
                     <h3><i class="fas fa-tags"></i> Coupon & Marketing Voucher Tool</h3>
                     <form method="POST" action="process_voucher.php" class="voucher-form">
-                        <input type="text" name="coupon_code" placeholder="Enter Voucher Code (e.g. RAYA20)" required>
+                        <input type="text" name="voucher_code" placeholder="Enter Voucher Code (e.g. RAYA20)" required>
                         <label for="discount-type">Select Discount Type</label>
-                        <select id="discount-type" name="discount_type">
+                        <select id="discount-type" name="voucher_type">
                             <option value="percentage">Discount Percentage</option>
                             <option value="flat">Flat Rate RM Cut</option>
                         </select>
-                        <button type="submit" class="btn-action">Generate Promotion</button>
+                        <input type="number" name="voucher_value" placeholder="Value (e.g. 20)" min="0.01" step="0.01" required>
+                        <button type="submit" name="add_voucher" class="btn-action">Generate Promotion</button>
                     </form>
                     <ul class="data-list">
                         <?php if ($vouchers_result && $vouchers_result->num_rows > 0): ?>

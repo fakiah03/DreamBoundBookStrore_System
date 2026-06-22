@@ -66,17 +66,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $postcode   = mysqli_real_escape_string($conn, trim($_POST['zipCode']   ?? ''));
     $pay_method = $_POST['paymentMethod'] ?? 'card';
     $ship_zone  = $_POST['ship_zone']    ?? 'semenanjung';
+    $voucher_code = strtoupper(trim($_POST['voucher_code'] ?? ''));
 
     $shipping_fee = ($ship_zone === 'borneo') ? $ship_bor : $ship_sem;
-    $total        = $subtotal + $shipping_fee;
 
-    // Validate stock
-    $stock_ok = true;
-    foreach ($cart_items as $item) {
-        if ($item['quantity'] > $item['stock']) {
-            $order_error = "Sorry! \"" . htmlspecialchars($item['title']) . "\" only has " . $item['stock'] . " units in stock.";
-            $stock_ok = false;
-            break;
+    // ── Validate voucher server-side (never trust the client-side discount) ──
+    $discount = 0;
+    if (!empty($voucher_code)) {
+        $v_stmt = $conn->prepare("SELECT type, value FROM vouchers WHERE code = ? AND status = 'active' LIMIT 1");
+        $v_stmt->bind_param("s", $voucher_code);
+        $v_stmt->execute();
+        $v_res = $v_stmt->get_result();
+        if ($v_res && $v_res->num_rows > 0) {
+            $voucher = $v_res->fetch_assoc();
+            $discount = ($voucher['type'] === 'percentage')
+                ? $subtotal * ($voucher['value'] / 100)
+                : (float)$voucher['value'];
+            $discount = min($discount, $subtotal);
+        } else {
+            $order_error = "Invalid or expired voucher code.";
+        }
+        $v_stmt->close();
+    }
+
+    $total = $subtotal + $shipping_fee - $discount;
+
+    // Validate stock (skip if voucher already failed)
+    $stock_ok = empty($order_error);
+    if ($stock_ok) {
+        foreach ($cart_items as $item) {
+            if ($item['quantity'] > $item['stock']) {
+                $order_error = "Sorry! \"" . htmlspecialchars($item['title']) . "\" only has " . $item['stock'] . " units in stock.";
+                $stock_ok = false;
+                break;
+            }
         }
     }
 
@@ -107,7 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             $conn->query("DELETE FROM cart WHERE user_id = $user_id");
 
             // Log
-            $conn->query("INSERT INTO system_logs (log_message) VALUES ('Order #$order_id placed by user ID $user_id via $pay_method. Total: RM " . number_format($total, 2) . "')");
+            $voucher_note = !empty($voucher_code) ? " (Voucher: $voucher_code, -RM" . number_format($discount, 2) . ")" : "";
+            $conn->query("INSERT INTO system_logs (log_message) VALUES ('Order #$order_id placed by user ID $user_id via $pay_method. Total: RM " . number_format($total, 2) . "$voucher_note')");
 
             $conn->commit();
 
@@ -202,6 +226,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         .place-order-btn:hover { background: #071c35; }
         .required-notice { font-size: 14px; color: #333; margin-top: 8px; }
         .error-box { background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; padding: 12px 16px; border-radius: 10px; font-size: 15px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .voucher-block { margin: 16px 0; }
+        .voucher-block label { font-size: 16px; color: #1A1A1A; display: block; margin-bottom: 8px; }
+        .voucher-row { display: flex; gap: 8px; }
+        .voucher-row .form-input { flex: 1; }
+        .voucher-btn { background-color: var(--accent-orange); color: var(--primary-blue); border: none; padding: 0 16px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: bold; white-space: nowrap; font-family: 'Englebert', sans-serif; }
+        .voucher-btn:hover { background-color: #e08e00; }
+        .voucher-msg { font-size: 14px; min-height: 18px; margin-top: 6px; }
         /* QR Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
         .modal-overlay.active { display: flex; }
@@ -393,10 +424,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                     <span>Shipping</span>
                     <span id="shippingDisplay">RM <?php echo number_format($ship_sem, 2); ?></span>
                 </div>
+                <div class="price-row" id="discountRow" style="display:none; color:#22c55e;">
+                    <span>Voucher Discount</span>
+                    <span id="discountDisplay">- RM 0.00</span>
+                </div>
                 <div class="price-row total-row">
                     <span>Total</span>
                     <span id="totalDisplay">RM <?php echo number_format($subtotal + $ship_sem, 2); ?></span>
                 </div>
+
+                <!-- Voucher input -->
+                <div class="voucher-block">
+                    <label>Have a voucher?</label>
+                    <div class="voucher-row">
+                        <input type="text" id="voucherInput" class="form-input" placeholder="Enter code...">
+                        <button type="button" class="voucher-btn" onclick="applyVoucher()"><i class="fas fa-tag"></i> Apply</button>
+                    </div>
+                    <p id="voucherMsg" class="voucher-msg"></p>
+                    <input type="hidden" name="voucher_code" id="hiddenVoucher" form="checkoutForm" value="">
+                </div>
+
                 <button type="submit" form="checkoutForm" class="place-order-btn" onclick="return validateAndSubmit()">
                     <i class="fas fa-check-circle"></i> Place Order
                 </button>
@@ -425,6 +472,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     const SHIP_BOR  = <?php echo $ship_bor; ?>;
     const SUBTOTAL  = <?php echo $subtotal; ?>;
     let currentZone = 'semenanjung';
+    let currentDiscount = 0;
 
     // ── Geo database ─────────────────────────────────────────────────────────
     const geoDatabase = {
@@ -495,7 +543,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         document.getElementById('hiddenZone').value = zone;
         const fee = (zone === 'borneo') ? SHIP_BOR : SHIP_SEM;
         document.getElementById('shippingDisplay').textContent = 'RM ' + fee.toFixed(2);
-        document.getElementById('totalDisplay').textContent    = 'RM ' + (SUBTOTAL + fee).toFixed(2);
+        recalcTotal();
+    }
+
+    function recalcTotal() {
+        const fee = (currentZone === 'borneo') ? SHIP_BOR : SHIP_SEM;
+        const total = SUBTOTAL + fee - currentDiscount;
+        document.getElementById('totalDisplay').textContent = 'RM ' + total.toFixed(2);
+    }
+
+    function applyVoucher() {
+        const code = document.getElementById('voucherInput').value.trim();
+        const msgEl = document.getElementById('voucherMsg');
+        const discountRow = document.getElementById('discountRow');
+
+        if (!code) { msgEl.style.color = '#dc2626'; msgEl.textContent = 'Please enter a voucher code.'; return; }
+
+        fetch('check_voucher.php?code=' + encodeURIComponent(code))
+            .then(r => r.json())
+            .then(data => {
+                if (data.valid) {
+                    currentDiscount = (data.type === 'percentage')
+                        ? Math.min(SUBTOTAL * (data.value / 100), SUBTOTAL)
+                        : Math.min(data.value, SUBTOTAL);
+                    document.getElementById('discountDisplay').textContent = '- RM ' + currentDiscount.toFixed(2);
+                    discountRow.style.display = 'flex';
+                    document.getElementById('hiddenVoucher').value = code;
+                    msgEl.style.color = '#22c55e';
+                    msgEl.textContent = '✓ Voucher applied!';
+                } else {
+                    currentDiscount = 0;
+                    discountRow.style.display = 'none';
+                    document.getElementById('hiddenVoucher').value = '';
+                    msgEl.style.color = '#dc2626';
+                    msgEl.textContent = 'Invalid or expired voucher.';
+                }
+                recalcTotal();
+            })
+            .catch(() => { msgEl.style.color = '#dc2626'; msgEl.textContent = 'Could not verify voucher.'; });
     }
 
     function selectPaymentMode(mode) {

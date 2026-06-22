@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ADD NEW VOUCHER
     if (isset($_POST['add_voucher'])) {
-        $code  = mysqli_real_escape_string($conn, strtoupper(trim($_POST['voucher_code'])));
+        $code  = strtoupper(trim($_POST['voucher_code']));
         $type  = ($_POST['voucher_type'] === 'flat') ? 'flat' : 'percentage';
         $value = floatval($_POST['voucher_value']);
 
@@ -23,14 +23,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Check duplicate
-        $check = $conn->query("SELECT id FROM vouchers WHERE code = '$code'");
+        $check_stmt = $conn->prepare("SELECT id FROM vouchers WHERE code = ?");
+        $check_stmt->bind_param("s", $code);
+        $check_stmt->execute();
+        $check = $check_stmt->get_result();
+        $check_stmt->close();
+
         if ($check && $check->num_rows > 0) {
             header("Location: ad_DashBoard.php?voucher_error=duplicate");
             exit();
         }
 
-        $conn->query("INSERT INTO vouchers (code, type, value, status) VALUES ('$code', '$type', $value, 'active')");
-        $conn->query("INSERT INTO system_logs (log_message) VALUES ('Admin added voucher: $code ($type, $value)')");
+        $ins_stmt = $conn->prepare("INSERT INTO vouchers (code, type, value, status) VALUES (?, ?, ?, 'active')");
+        $ins_stmt->bind_param("ssd", $code, $type, $value);
+        $ins_stmt->execute();
+        $ins_stmt->close();
+
+        $log_stmt = $conn->prepare("INSERT INTO system_logs (log_message) VALUES (?)");
+        $log_msg = "Admin added voucher: $code ($type, $value)";
+        $log_stmt->bind_param("s", $log_msg);
+        $log_stmt->execute();
+        $log_stmt->close();
+
         header("Location: ad_DashBoard.php?voucher_success=1");
         exit();
     }
@@ -38,8 +52,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // DEACTIVATE VOUCHER
     if (isset($_POST['deactivate_voucher'])) {
         $id = intval($_POST['voucher_id']);
-        $conn->query("UPDATE vouchers SET status = 'inactive' WHERE id = $id");
-        $conn->query("INSERT INTO system_logs (log_message) VALUES ('Admin deactivated voucher ID: $id')");
+
+        $deact_stmt = $conn->prepare("UPDATE vouchers SET status = 'inactive' WHERE id = ?");
+        $deact_stmt->bind_param("i", $id);
+        $deact_stmt->execute();
+        $deact_stmt->close();
+
+        $log_stmt = $conn->prepare("INSERT INTO system_logs (log_message) VALUES (?)");
+        $log_msg = "Admin deactivated voucher ID: $id";
+        $log_stmt->bind_param("s", $log_msg);
+        $log_stmt->execute();
+        $log_stmt->close();
+
         header("Location: ad_DashBoard.php?voucher_success=deactivated");
         exit();
     }
