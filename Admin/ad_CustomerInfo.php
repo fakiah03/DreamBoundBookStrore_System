@@ -89,7 +89,7 @@ $new_query = "SELECT COUNT(*) as total FROM users WHERE role = 'customer' AND LO
 $new_res = $conn->query($new_query)->fetch_assoc();
 $new_customers = $new_res['total'] ?? 0;
 
-// Logik untuk Carian (Search) & Filter Keahlian
+// Logic for Search & Membership Filter
 $search_keyword = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : '';
 $tier_filter = isset($_GET['tier']) ? mysqli_real_escape_string($conn, trim($_GET['tier'])) : 'all';
 
@@ -293,6 +293,73 @@ $customers_list = $conn->query($sql_select_users);
         .stat-card h4 { font-size: 0.95rem; color: #555; }
         .stat-card p { font-size: 1.6rem; font-weight: bold; }
         .stat-card i { font-size: 1.8rem; color: #FC9D01; background: #0E2C46; padding: 10px; border-radius: 50%; }
+
+        /* --- MANUAL REGISTRATION FORM STYLE --- */
+        .admin-form-panel {
+            background-color: #FDF5E6;
+            border: 2px solid #0E2C46;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: #0E2C46;
+        }
+
+        .admin-form-panel h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(14, 44, 70, 0.1);
+            padding-bottom: 5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+
+        .form-control {
+            padding: 10px;
+            border: 2px solid #0E2C46;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            background-color: #ffffff;
+        }
+
+        .form-control:focus {
+            border-color: #FC9D01;
+        }
+
+        .btn-submit {
+            padding: 10px 25px;
+            background-color: #0E2C46;
+            color: white;
+            border: 2px solid #0E2C46;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #FC9D01;
+            color: #0E2C46;
+            border-color: #0E2C46;
+        }
 
         /* --- FILTER & SEARCH CONTROLS --- */
         .control-panel {
@@ -522,12 +589,57 @@ $customers_list = $conn->query($sql_select_users);
                 <div class="stat-card">
                     <div>
                         <h4>New Members</h4>
-                        <!-- Note: "Tier" is used here to maintain consistency with the membership tier terminology -->
-                         <!-- echo numer_format() is used to format the number with commas for better readability -->
                         <p><?php echo number_format($new_customers); ?> Tier</p>
                     </div>
                     <i class="fas fa-user-plus"></i>
                 </div>
+            </section>
+
+            <section class="admin-form-panel">
+                <h3>Add New Customer Manually</h3>
+                
+                <form action="ad_CustomerInfo.php" method="POST">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name:</label>
+                            <input type="text" name="fullname" class="form-control" placeholder="Enter full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address:</label>
+                            <input type="email" name="email" class="form-control" placeholder="example@email.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Contact Number:</label>
+                            <input type="text" name="phone" class="form-control" placeholder="e.g. +60123456789" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Membership Tier:</label>
+                            <select name="membership_tier" class="form-control" required>
+                                <option value="">-- Select Membership --</option>
+                                <option value="Regular">Regular</option>
+                                <option value="VIP">VIP</option>
+                                <option value="New">New</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Temporary Password:</label>
+                            <input type="password" name="password" class="form-control" placeholder="Create temporary login security password" required>
+                            <small style="color: #666; font-style: italic;">Provide this security password to the client for their first login milestone.</small>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 10px;">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-user-plus"></i> Register Customer
+                        </button>
+                    </div>
+                </form>
             </section>
 
             <section class="control-panel">
@@ -586,14 +698,13 @@ $customers_list = $conn->query($sql_select_users);
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 20px; font-weight: bold;">Tiada maklumat pelanggan ditemui.</td>
+                                <td colspan="6" style="text-align: center; padding: 20px; font-weight: bold;">No customer information found.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
 
                 <div class="pagination">
-                    <button class="page-node" type="button" aria-label="Previous page">
                         <i class="fas fa-chevron-left" aria-hidden="true"></i>
                     </button>
                     <button class="page-node active" type="button" aria-label="Page 1">1</button>

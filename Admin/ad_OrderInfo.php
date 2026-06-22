@@ -60,23 +60,25 @@ $orders_result = $conn->query($sql_orders);
     <link href="https://fonts.googleapis.com/css2?family=Englebert&display=swap" rel="stylesheet">
     
     <style>
-       
         * { 
             margin: 0; 
             padding: 0; 
             box-sizing: border-box; 
-            font-family: 'Englebert', cursive, sans-serif; }
+            font-family: 'Englebert', cursive, sans-serif; 
+        }
 
         body { 
             background-color: #FC9D01; 
             display: flex; 
             height: 100vh; 
-            overflow: hidden; }
+            overflow: hidden; 
+        }
 
         .container { 
             display: flex; 
             width: 100%; 
-            height: 100vh; }
+            height: 100vh; 
+        }
             
         .sidebar { 
             width: 280px; 
@@ -86,42 +88,50 @@ $orders_result = $conn->query($sql_orders);
             flex-direction: column; 
             padding: 30px 0; 
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2); 
-            flex-shrink: 0; }
+            flex-shrink: 0; 
+        }
 
         .profile-section { 
             text-align: center; 
             padding: 0 20px 25px 20px; 
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1); }
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1); 
+        }
 
         .logo-img { 
             width: 150px; 
-            margin-bottom: 10px; }
+            margin-bottom: 10px; 
+        }
 
         .profile-section h3 { 
             font-size: 1.4rem; 
             letter-spacing: 1px; 
-            color: #ffffff; }
+            color: #ffffff; 
+        }
 
         .subtitle { 
             font-size: 0.8rem; 
             color: #FC9D01; 
             letter-spacing: 2px; 
-            margin-bottom: 15px; }
+            margin-bottom: 15px; 
+        }
             
         .user-info { 
             background-color: rgba(255, 255, 255, 0.1); 
             padding: 10px; 
             border-radius: 8px; 
-            font-size: 0.95rem; }
+            font-size: 0.95rem; 
+        }
 
         .nav-links { 
             list-style: none; 
             margin-top: 25px; 
             flex-grow: 1; 
-            padding: 0 15px; }
+            padding: 0 15px; 
+        }
 
         .nav-links li { 
-            margin-bottom: 8px; }
+            margin-bottom: 8px; 
+        }
 
         .nav-links li a { 
             text-decoration: none; 
@@ -133,16 +143,19 @@ $orders_result = $conn->query($sql_orders);
             padding: 12px 20px; 
             border-radius: 8px; 
             transition: all 0.3s ease; 
-            background: rgba(255, 255, 255, 0.05); }
+            background: rgba(255, 255, 255, 0.05); 
+        }
 
         .nav-links li.active a, .nav-links li a:hover { 
             background: #FC9D01; 
             color: #0E2C46; 
             font-weight: bold; 
-            transform: translateX(5px); }
+            transform: translateX(5px); 
+        }
 
         .logout-container { 
-            padding: 0 15px; }
+            padding: 0 15px; 
+        }
 
         .btn-logout { 
             width: 100%; 
@@ -158,35 +171,41 @@ $orders_result = $conn->query($sql_orders);
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            gap: 10px; }
+            gap: 10px; 
+        }
 
         .btn-logout:hover { 
             background: #FC9D01; 
-            color: #0E2C46; }
+            color: #0E2C46; 
+        }
 
         .main-content { 
             flex-grow: 1; 
             background-color: #FC9D01; 
             padding: 30px; 
-            overflow-y: auto; }
+            overflow-y: auto; 
+        }
 
         .top-header { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            margin-bottom: 30px; }
+            margin-bottom: 30px; 
+        }
 
         .page-title { 
             font-size: 2.5rem; 
             color: #0E2C46; 
             margin-bottom: 20px; 
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5); 
+        }
 
         .order-stats-grid { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
             gap: 20px; 
-            margin-bottom: 30px; }
+            margin-bottom: 30px; 
+        }
 
         .order-stat-card { 
             background-color: #FDF5E6; 
@@ -197,22 +216,26 @@ $orders_result = $conn->query($sql_orders);
             justify-content: space-between; 
             align-items: center; 
             color: #0E2C46; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
 
         .order-stat-card h4 { 
             font-size: 0.95rem; 
-            color: #555; }
+            color: #555; 
+        }
 
         .order-stat-card p { 
             font-size: 1.6rem; 
-            font-weight: bold; }
+            font-weight: bold; 
+        }
 
         .order-stat-card i { 
             font-size: 1.8rem; 
             color: #FC9D01; 
             background: #0E2C46; 
             padding: 10px; 
-            border-radius: 50%; }
+            border-radius: 50%; 
+        }
 
         .control-panel { 
             background-color: #FDF5E6; 
@@ -225,11 +248,13 @@ $orders_result = $conn->query($sql_orders);
             align-items: center; 
             flex-wrap: wrap; 
             gap: 15px; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
 
         .filter-tabs { 
             display: flex; 
-            gap: 10px; }
+            gap: 10px; 
+        }
 
         .tab-btn { 
             padding: 8px 16px; 
@@ -240,11 +265,13 @@ $orders_result = $conn->query($sql_orders);
             cursor: pointer; 
             font-size: 0.95rem; 
             font-weight: bold; 
-            transition: all 0.2s; }
+            transition: all 0.2s; 
+        }
 
         .tab-btn.active, .tab-btn:hover { 
             background: #0E2C46; 
-            color: white; }
+            color: white; 
+        }
 
         .search-box { 
             display: flex; 
@@ -254,14 +281,16 @@ $orders_result = $conn->query($sql_orders);
             overflow: hidden; 
             padding: 2px; 
             width: 100%; 
-            max-width: 350px; }
+            max-width: 350px; 
+        }
 
         .search-box input { 
             border: none; 
             padding: 8px 15px; 
             outline: none; 
             flex-grow: 1; 
-            font-size: 0.95rem; }
+            font-size: 0.95rem; 
+        }
 
         .search-box button { 
             background: #0E2C46; 
@@ -269,7 +298,8 @@ $orders_result = $conn->query($sql_orders);
             border: none; 
             padding: 8px 15px; 
             border-radius: 23px; 
-            cursor: pointer; }
+            cursor: pointer; 
+        }
 
         .table-panel { 
             background-color: #FDF5E6; 
@@ -278,27 +308,32 @@ $orders_result = $conn->query($sql_orders);
             padding: 20px; 
             box-shadow: 0 6px 12px rgba(0,0,0,0.1); 
             color: #0E2C46; 
-            overflow-x: auto; }
+            overflow-x: auto; 
+        }
 
         .order-table { 
             width: 100%; 
             border-collapse: collapse; 
             text-align: left; 
-            font-size: 1.05rem; }
+            font-size: 1.05rem; 
+        }
 
         .order-table th { 
             background-color: #0E2C46; 
             color: white; 
             padding: 12px 15px; 
-            font-size: 1.1rem; }
+            font-size: 1.1rem; 
+        }
 
         .order-table td { 
             padding: 12px 15px; 
             border-bottom: 1px solid rgba(14, 44, 70, 0.2); 
-            background-color: rgba(255, 255, 255, 0.3); }
+            background-color: rgba(255, 255, 255, 0.3); 
+        }
 
         .order-table tr:hover td { 
-            background-color: rgba(252, 157, 1, 0.1); }
+            background-color: rgba(252, 157, 1, 0.1); 
+        }
 
         .status-badge { 
             padding: 5px 10px; 
@@ -306,31 +341,37 @@ $orders_result = $conn->query($sql_orders);
             font-size: 0.85rem; 
             font-weight: bold; 
             text-align: center; 
-            display: inline-block; }
+            display: inline-block; 
+        }
 
         .status-badge.pending { 
             background-color: #fef08a; 
             color: #854d0e; 
-            border: 1px solid #ca8a04; }
+            border: 1px solid #ca8a04; 
+        }
 
         .status-badge.shipped { 
             background-color: #bfdbfe; 
             color: #1e40af; 
-            border: 1px solid #3b82f6; }
+            border: 1px solid #3b82f6; 
+        }
 
         .status-badge.delivered { 
             background-color: #bbf7d0; 
             color: #166534; 
-            border: 1px solid #22c55e; }
+            border: 1px solid #22c55e; 
+        }
 
         .status-badge.cancelled { 
             background-color: #fecaca; 
             color: #991b1b; 
-            border: 1px solid #ef4444; }
+            border: 1px solid #ef4444; 
+        }
 
         .action-cell { 
             display: flex; 
-            gap: 8px; }
+            gap: 8px; 
+        }
 
         .btn-table { 
             padding: 6px 12px; 
@@ -339,26 +380,32 @@ $orders_result = $conn->query($sql_orders);
             cursor: pointer; 
             font-size: 0.9rem; 
             font-weight: bold; 
-            transition: all 0.2s; }
+            transition: all 0.2s; 
+        }
 
         .btn-table.view { 
             background-color: #0E2C46; 
-            color: white; }
+            color: white; 
+        }
 
         .btn-table.view:hover { 
-            background-color: #1a446c; }
+            background-color: #1a446c; 
+        }
 
         .btn-table.update { 
             background-color: #FC9D01; 
-            color: #0E2C46; }
+            color: #0E2C46; 
+        }
 
         .btn-table.update:hover { 
-            background-color: #e08b00; }
+            background-color: #e08b00; 
+        }
 
         .pagination { 
             display: flex; 
             justify-content: flex-end; 
-            margin-top: 20px; gap: 5px; }
+            margin-top: 20px; gap: 5px; 
+        }
 
         .page-node { 
             padding: 6px 12px; 
@@ -366,12 +413,13 @@ $orders_result = $conn->query($sql_orders);
             background: white; 
             cursor: pointer; 
             border-radius: 4px; 
-            font-weight: bold; }
+            font-weight: bold; 
+        }
 
         .page-node.active, .page-node:hover { 
             background-color: #0E2C46; 
-            color: white; }
-            
+            color: white; 
+        }
     </style>
 </head>
 <body>
@@ -437,11 +485,11 @@ $orders_result = $conn->query($sql_orders);
 
             <section class="control-panel">
                 <div class="filter-tabs">
-                    <button class="tab-btn active" onclick="filterStatus('all')">All Orders</button>
-                    <button class="tab-btn" onclick="filterStatus('pending')">Pending</button>
-                    <button class="tab-btn" onclick="filterStatus('shipped')">Shipped</button>
-                    <button class="tab-btn" onclick="filterStatus('delivered')">Delivered</button>
-                    <button class="tab-btn" onclick="filterStatus('cancelled')">Cancelled</button>
+                    <button class="tab-btn active" onclick="filterStatus(this, 'all')">All Orders</button>
+                    <button class="tab-btn" onclick="filterStatus(this, 'pending')">Pending</button>
+                    <button class="tab-btn" onclick="filterStatus(this, 'shipped')">Shipped</button>
+                    <button class="tab-btn" onclick="filterStatus(this, 'delivered')">Delivered</button>
+                    <button class="tab-btn" onclick="filterStatus(this, 'cancelled')">Cancelled</button>
                 </div>
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="Search Order ID or Buyer Name...">
@@ -468,7 +516,7 @@ $orders_result = $conn->query($sql_orders);
                                 
                                 $order_id = $row['order_id'];
                                 $display_id = "DB-" . str_pad($order_id, 4, '0', STR_PAD_LEFT);
-                                $status_class = strtolower($row['order_status']); // pending, shipped dll
+                                $status_class = strtolower($row['order_status']); 
                                 $date_formatted = date("d F Y", strtotime($row['order_date']));
                                 
                                 // Get the list of books for this order.
@@ -490,8 +538,12 @@ $orders_result = $conn->query($sql_orders);
                                 <td>RM <?php echo number_format($row['total_price'], 2); ?></td>
                                 <td><span class="status-badge <?php echo $status_class; ?>"><?php echo ucfirst($status_class); ?></span></td>
                                 <td class="action-cell">
-                                    <button class="btn-table view" onclick="triggerView('#<?php echo $display_id; ?>')"><i class="fas fa-eye"></i> View</button>
-                                    <button class="btn-table update" onclick="triggerUpdate(<?php echo $order_id; ?>, '#<?php echo $display_id; ?>')"><i class="fas fa-edit"></i> Status</button>
+                                    <button class="btn-table view" onclick="triggerView(<?php echo $order_id; ?>)">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn-table update" onclick="triggerUpdate(<?php echo $order_id; ?>, '<?php echo $display_id; ?>')">
+                                        <i class="fas fa-edit"></i> Update
+                                    </button>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
@@ -517,17 +569,17 @@ $orders_result = $conn->query($sql_orders);
     </div>
 
     <script>
-        // Show an alert for PHP success or error status.
+        // Show an alert safely for PHP success or error status.
         <?php if(!empty($alert_message)): ?>
-            alert("<?php echo $alert_message; ?>");
+            alert(<?php echo json_encode($alert_message); ?>);
         <?php endif; ?>
 
         // 1. Live status filter logic for the HTML table.
-        function filterStatus(statusType) {
-            // hange the color of the active tab.
+        function filterStatus(element, statusType) {
+            // Change the color of the active tab.
             const tabs = document.querySelectorAll('.tab-btn');
             tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
+            element.classList.add('active');
             
             // Filter rows in the table. if 'all' is selected, show all rows. Otherwise, show only rows that match the selected status.
             const rows = document.querySelectorAll('.order-row');
@@ -561,12 +613,13 @@ $orders_result = $conn->query($sql_orders);
             });
         });
 
-        // 3. Detail view operation (currently using alert only).
-        function triggerView(displayId) {
-            alert("Fetching and generating Invoice details for Order " + displayId + "\nPreparing digital receipt view...");
+        // 3. Detail view operation.
+        function triggerView(orderId) {
+            // Opens invoice.php in a new tab, passing the specific Order ID
+            window.open("invoice.php?order_id=" + orderId, "_blank");
         }
 
-        // 4. Detail view operation (currently using alert only). In the future, this can be enhanced to open a modal with detailed information and options to print the invoice.
+        // 4. Update status operation prompt.
         function triggerUpdate(orderId, displayId) {
             let nextStatus = prompt("Update status for " + displayId + ":\nType: Pending, Shipped, Delivered, or Cancelled");
             if(nextStatus) {
