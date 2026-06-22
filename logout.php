@@ -5,7 +5,7 @@ require_once 'db.php';
 // 1. Log the user logout activity in system logs prior to session destruction.
 if (isset($_SESSION['fullname'])) {
     $nama = $_SESSION['fullname'];
-    $role = isset($_SESSION['role']) ? ucfirst($_SESSION['role']) : 'Pengguna';
+    $role = isset($_SESSION['role']) ? ucfirst($_SESSION['role']) : 'users';
     
     $log_msg = "$role $nama logged out of the system.";
     $conn->query("INSERT INTO system_logs (log_message) VALUES ('$log_msg')");
@@ -30,7 +30,7 @@ session_destroy();
 // Redirect the user to the login page or the main index page.
 echo "<script>
     alert('You have successfully logged out.');
-    window.location.href = 'Auth/login.php'; 
+    window.location.href = 'index.php'; 
 </script>";
 exit();
 ?>
