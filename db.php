@@ -1,18 +1,18 @@
 <?php
-$host = "127.0.0.1"; // Guna IP ini lebih stabil untuk Laragon & XAMPP
+$host = "localhost";
 $user = "root";
 $pass = ""; 
 $db   = "dreambound_db";
 
-// 1. Cuba sambung menggunakan port default Laragon (3306) dahulu
-$conn = @new mysqli($host, $user, $pass, $db, 3306);
+// 1. Mula-mula, cuba port 3307 (Laluan khas untuk Laragon ANDA)
+$conn = @new mysqli($host, $user, $pass, $db, 3307);
 
-// 2. Jika gagal (mungkin di PC kawan yang guna XAMPP port 3307), sistem akan automatik cuba port 3307
+// 2. Jika gagal, maksudnya sistem sedang run di XAMPP kawan anda (port 3306)
 if ($conn->connect_error) {
-    $conn = @new mysqli($host, $user, $pass, $db, 3307);
+    $conn = @new mysqli($host, $user, $pass, $db, 3306);
 }
 
-// 3. Jika kedua-duanya masih gagal, baru paparkan ralat
+// 3. Jika kedua-duanya masih gagal, baru keluar ralat database
 if ($conn->connect_error) {
     die("Database Connection Failed: " . $conn->connect_error);
 }
