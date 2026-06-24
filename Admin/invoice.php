@@ -233,6 +233,7 @@ $items_result = $conn->query($sql_items);
                 </tr>
             </thead>
             <tbody>
+                <!--Variable Setup & Data Validation-->
                 <?php 
                 $count = 1;
                 if ($items_result && $items_result->num_rows > 0): 
@@ -240,6 +241,7 @@ $items_result = $conn->query($sql_items);
                         $subtotal = $item['price'] * $item['quantity'];
                 ?>
                 <tr>
+                    <!-- Item Row Display (Within Loop) -->
                     <td><?php echo $count++; ?></td>
                     <td><?php echo htmlspecialchars($item['title']); ?></td>
                     <td>RM <?php echo number_format($item['price'], 2); ?></td>
@@ -251,6 +253,7 @@ $items_result = $conn->query($sql_items);
                 else: 
                 ?>
                 <tr>
+                    <!--Loop Closure & Condition When No Data Is Available (Fallback)-->
                     <td colspan="5" style="text-align: center;">No registered items found for this invoice.</td>
                 </tr>
                 <?php endif; ?>

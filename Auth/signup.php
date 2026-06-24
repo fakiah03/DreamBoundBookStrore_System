@@ -295,7 +295,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="form-group">
                     <label for="phone">Phone Number</label>
-                    <input type="text" id="phone" name="phone" placeholder="e.g. 0123456789" required>
+                    <input type="text" 
+                           id="phone" 
+                           name="phone" 
+                           placeholder="e.g. 0123456789" 
+                           pattern="01[0-9]{8,9}" 
+                           inputmode="numeric" 
+                           maxlength="11" 
+                           oninput="validateNumber(this)" 
+                           title="Please enter a valid Malaysian phone number starting with 01 (e.g., 0123456789)" 
+                           required>
                 </div>
 
                 <div class="form-group">
@@ -320,5 +329,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
     
+    <script>
+        function validateNumber(input) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+        }
+    </script>
 </body>
 </html>

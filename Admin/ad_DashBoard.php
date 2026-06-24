@@ -64,9 +64,8 @@ if ($kpi_percentage > 100) $kpi_percentage = 100; // Maksimum bar 100%
 
 // 5. QUERY FOR DYNAMIC CONTENT IN ROW 4 & 5: Vouchers, Reviews, System Logs, Staff List (use status for vouchers/reviews and role for staff)
 
-// pick 2 active vouchers to display in the voucher management panel
-$vouchers_result = $conn->query("SELECT * FROM vouchers WHERE status = 'active' LIMIT 2");
-
+// pick the 5 newest active vouchers to display in the voucher management panel
+$vouchers_result = $conn->query("SELECT * FROM vouchers WHERE status = 'active' ORDER BY id DESC LIMIT 5");
 // Retrieve the list of pending reviews that have not yet been processed, along with the user's name and the book title.
 $reviews_result = $conn->query("SELECT r.*, u.fullname, b.title FROM reviews r 
                                 JOIN users u ON r.user_id = u.id 

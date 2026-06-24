@@ -526,6 +526,101 @@ $customers_list = $conn->query($sql_select_users);
             background-color: #0E2C46;
             color: white;
         }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(14, 44, 70, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #FDF5E6;
+            border: 2px solid #0E2C46;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #0E2C46;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(14, 44, 70, 0.15);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #0E2C46;
+        }
+
+        .modal-msg {
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+        }
+
+        .modal-msg.error { color: #b91c1c; }
+
+        .history-item {
+            border: 1px solid rgba(14, 44, 70, 0.2);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .history-item .order-meta {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .history-item .order-amount {
+            font-weight: bold;
+            color: #0E2C46;
+        }
+
+        .status-pill {
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .modal-box .btn-submit {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -691,8 +786,8 @@ $customers_list = $conn->query($sql_select_users);
                                         </span>
                                     </td>
                                     <td class="action-cell">
-                                        <button class="btn-table history" onclick="viewHistory('<?php echo addslashes($row['fullname']); ?>')"><i class="fas fa-history"></i> History</button>
-                                        <button class="btn-table edit" onclick="editCustomer('<?php echo $row['customer_id_str']; ?>')"><i class="fas fa-user-edit"></i> Edit</button>
+                                        <button class="btn-table history" onclick="viewHistory(<?php echo (int)$row['id']; ?>)"><i class="fas fa-history"></i> History</button>
+                                        <button class="btn-table edit" onclick="editCustomer(<?php echo (int)$row['id']; ?>)"><i class="fas fa-user-edit"></i> Edit</button>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -705,6 +800,7 @@ $customers_list = $conn->query($sql_select_users);
                 </table>
 
                 <div class="pagination">
+                    <button class="page-node" type="button" aria-label="Previous page">
                         <i class="fas fa-chevron-left" aria-hidden="true"></i>
                     </button>
                     <button class="page-node active" type="button" aria-label="Page 1">1</button>
@@ -716,16 +812,171 @@ $customers_list = $conn->query($sql_select_users);
         </main>
     </div>
 
+    <!-- HISTORY MODAL -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="historyModalTitle"><i class="fas fa-history"></i> Purchase History</h3>
+                <button class="modal-close" onclick="closeModal('historyModal')">&times;</button>
+            </div>
+            <div id="historyModalBody">
+                <p class="modal-msg">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Edit Customer</h3>
+                <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <div id="editModalBody">
+                <p class="modal-msg">Loading...</p>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function viewHistory(customerName) {
-            alert("Loading full Dreambound purchase history logs for: " + customerName);
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
         }
 
-        function editCustomer(customerId) {
-            let updatedPhone = prompt("Modify Contact Number for " + customerId + ":");
-            if (updatedPhone) {
-                alert("Customer account " + customerId + " successfully updated with new contact: " + updatedPhone);
-            }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        // Close modal when clicking outside the box
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    overlay.classList.remove('show');
+                }
+            });
+        });
+
+        // --- VIEW HISTORY ---
+        function viewHistory(userId) {
+            const body = document.getElementById('historyModalBody');
+            const title = document.getElementById('historyModalTitle');
+            body.innerHTML = '<p class="modal-msg">Loading...</p>';
+            title.innerHTML = '<i class="fas fa-history"></i> Purchase History';
+            openModal('historyModal');
+
+            fetch('ad_GetCustomerHistory.php?user_id=' + encodeURIComponent(userId))
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        body.innerHTML = '<p class="modal-msg error">' + data.message + '</p>';
+                        return;
+                    }
+
+                    title.innerHTML = '<i class="fas fa-history"></i> ' + data.customer.fullname + ' (' + data.customer.customer_id_str + ')';
+
+                    if (data.orders.length === 0) {
+                        body.innerHTML = '<p class="modal-msg">No purchase history found for this customer.</p>';
+                        return;
+                    }
+
+                    let html = '';
+                    data.orders.forEach(order => {
+                        const amount = parseFloat(order.total_amount).toFixed(2);
+                        html += '<div class="history-item">' +
+                                    '<div>' +
+                                        '<strong>Order #' + order.id + '</strong>' +
+                                        '<div class="order-meta">' + order.order_date + '</div>' +
+                                    '</div>' +
+                                    '<span class="status-pill">' + order.status + '</span>' +
+                                    '<span class="order-amount">RM ' + amount + '</span>' +
+                                '</div>';
+                    });
+                    body.innerHTML = html;
+                })
+                .catch(() => {
+                    body.innerHTML = '<p class="modal-msg error">Failed to load purchase history. Please try again.</p>';
+                });
+        }
+
+        // --- EDIT CUSTOMER ---
+        function editCustomer(userId) {
+            const body = document.getElementById('editModalBody');
+            body.innerHTML = '<p class="modal-msg">Loading...</p>';
+            openModal('editModal');
+
+            fetch('ad_UpdateCustomer.php?user_id=' + encodeURIComponent(userId))
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        body.innerHTML = '<p class="modal-msg error">' + data.message + '</p>';
+                        return;
+                    }
+
+                    const c = data.customer;
+                    body.innerHTML =
+                        '<div id="editFormMsg"></div>' +
+                        '<form id="editCustomerForm">' +
+                            '<div class="form-group">' +
+                                '<label>Full Name:</label>' +
+                                '<input type="text" name="fullname" class="form-control" value="' + escapeHtml(c.fullname) + '" required>' +
+                            '</div>' +
+                            '<div class="form-group">' +
+                                '<label>Email Address:</label>' +
+                                '<input type="email" name="email" class="form-control" value="' + escapeHtml(c.email) + '" required>' +
+                            '</div>' +
+                            '<div class="form-group">' +
+                                '<label>Contact Number:</label>' +
+                                '<input type="text" name="phone" class="form-control" value="' + escapeHtml(c.phone) + '" required>' +
+                            '</div>' +
+                            '<div class="form-group">' +
+                                '<label>Membership Tier:</label>' +
+                                '<select name="membership_tier" class="form-control" required>' +
+                                    '<option value="Regular"' + (c.membership_tier === 'Regular' ? ' selected' : '') + '>Regular</option>' +
+                                    '<option value="VIP"' + (c.membership_tier === 'VIP' ? ' selected' : '') + '>VIP</option>' +
+                                    '<option value="New"' + (c.membership_tier === 'New' ? ' selected' : '') + '>New</option>' +
+                                '</select>' +
+                            '</div>' +
+                            '<input type="hidden" name="user_id" value="' + c.id + '">' +
+                            '<div style="text-align: right; margin-top: 10px;">' +
+                                '<button type="submit" class="btn-submit"><i class="fas fa-save"></i> Save Changes</button>' +
+                            '</div>' +
+                        '</form>';
+
+                    document.getElementById('editCustomerForm').addEventListener('submit', submitEditForm);
+                })
+                .catch(() => {
+                    body.innerHTML = '<p class="modal-msg error">Failed to load customer details. Please try again.</p>';
+                });
+        }
+
+        function submitEditForm(e) {
+            e.preventDefault();
+            const form = e.target;
+            const msgBox = document.getElementById('editFormMsg');
+            const formData = new FormData(form);
+
+            fetch('ad_UpdateCustomer.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeModal('editModal');
+                        window.location.reload();
+                    } else {
+                        msgBox.innerHTML = '<p class="modal-msg error">' + data.message + '</p>';
+                    }
+                })
+                .catch(() => {
+                    msgBox.innerHTML = '<p class="modal-msg error">Something went wrong while saving. Please try again.</p>';
+                });
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
         }
 
         function confirmLogout() {

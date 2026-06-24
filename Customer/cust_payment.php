@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $last       = mysqli_real_escape_string($conn, trim($_POST['lastName']  ?? ''));
     $email      = mysqli_real_escape_string($conn, trim($_POST['email']     ?? ''));
     $phone      = mysqli_real_escape_string($conn, trim(($_POST['countryCode'] ?? '+60') . ($_POST['phoneNumber'] ?? '')));
+    $address    = mysqli_real_escape_string($conn, trim($_POST['address']   ?? '')); // FIXED: Captured address input
     $state      = mysqli_real_escape_string($conn, trim($_POST['state']     ?? ''));
     $city       = mysqli_real_escape_string($conn, trim($_POST['city']      ?? ''));
     $postcode   = mysqli_real_escape_string($conn, trim($_POST['zipCode']   ?? ''));
@@ -124,7 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
             // Update user profile with latest info
             $full = "$first $last";
-            $conn->query("UPDATE users SET fullname='$full', phone='$phone', postcode='$postcode', city='$city', state='$state' WHERE id=$user_id");
+            // FIXED: Added address='$address' inside the UPDATE query below
+            $conn->query("UPDATE users SET fullname='$full', phone='$phone', address='$address', postcode='$postcode', city='$city', state='$state' WHERE id=$user_id");
 
             // Clear cart
             $conn->query("DELETE FROM cart WHERE user_id = $user_id");
@@ -257,7 +259,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
     <div class="checkout-body">
 
-        <!-- ── LEFT: FORM ── -->
         <div class="form-section">
 
             <?php if (!empty($order_error)): ?>
@@ -305,6 +306,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                     </div>
                 </div>
 
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label>Street Address<span class="star-required">*</span></label>
+                    <input type="text" name="address" class="form-input" placeholder="House No, Street Name, Neighborhood" required
+                        value="<?php echo htmlspecialchars($_POST['address'] ?? $user['address'] ?? ''); ?>">
+                </div>
+
                 <div class="form-grid-triple">
                     <div class="form-group">
                         <label>State<span class="star-required">*</span></label>
@@ -326,7 +333,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                     </div>
                 </div>
 
-                <!-- Shipping Zone -->
                 <div style="margin-bottom: 20px;">
                     <div class="payment-title-row">Shipping Zone<span class="star-required">*</span></div>
                     <div class="zone-row">
@@ -343,7 +349,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
                 <div class="checkout-divider" style="margin-bottom: 20px;"></div>
 
-                <!-- Payment Method -->
                 <div class="payment-title-row">Payment Method<span class="star-required">*</span></div>
                 <div class="payment-options-container">
                     <div class="payment-box selected" id="boxCard" onclick="selectPaymentMode('card')">
@@ -392,7 +397,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             </form>
         </div>
 
-        <!-- ── RIGHT: SUMMARY ── -->
         <div class="summary-section">
             <div>
                 <div class="cart-title">Your Cart (<?php echo count($cart_items); ?> item<?php echo count($cart_items) > 1 ? 's' : ''; ?>)</div>
@@ -433,7 +437,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                     <span id="totalDisplay">RM <?php echo number_format($subtotal + $ship_sem, 2); ?></span>
                 </div>
 
-                <!-- Voucher input -->
                 <div class="voucher-block">
                     <label>Have a voucher?</label>
                     <div class="voucher-row">
@@ -450,10 +453,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             </div>
         </div>
 
-    </div><!-- /.checkout-body -->
-</div>
+    </div></div>
 
-<!-- ── QR Modal ── -->
 <div id="qrModalOverlay" class="modal-overlay">
     <div class="qr-modal">
         <h3>Scan to Pay</h3>

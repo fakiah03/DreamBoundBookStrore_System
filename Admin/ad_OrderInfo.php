@@ -13,23 +13,25 @@ $alert_message = "";
 // 2. Function to update order status (Change Logistics Status)
 if (isset($_GET['update_id']) && isset($_GET['new_status'])) {
     $order_id = intval($_GET['update_id']);
-    $new_status = mysqli_real_escape_string($conn, strtolower(trim($_GET['new_status'])));
     
-    // Ensure admin can only set allowed statuses
-    $allowed_status = ['pending', 'shipped', 'delivered', 'cancelled'];
+    // Standardize input to Capitalized string (e.g., "Pending", "Shipped") to match DB constraints
+    $new_status = mysqli_real_escape_string($conn, ucfirst(strtolower(trim($_GET['new_status']))));
+    
+    // Ensure admin can only set allowed statuses matching DB uppercase/capitalized rules
+    $allowed_status = ['Pending', 'Shipped', 'Delivered', 'Cancelled'];
     if (in_array($new_status, $allowed_status)) {
         $conn->query("UPDATE orders SET status = '$new_status' WHERE id = $order_id");
-        $conn->query("INSERT INTO system_logs (log_message) VALUES ('Admin menukar status pesanan ID #$order_id kepada $new_status')");
-        $alert_message = "Order #DB-" . str_pad($order_id, 4, '0', STR_PAD_LEFT) . " successfully changed to [" . ucfirst($new_status) . "]";
+        $conn->query("INSERT INTO system_logs (log_message) VALUES ('Admin changed the status of Order ID #$order_id to $new_status')");
+        $alert_message = "Order #DB-" . str_pad($order_id, 4, '0', STR_PAD_LEFT) . " successfully changed to [" . $new_status . "]";
     } else {
         $alert_message = "Invalid status! Please enter only: Pending, Shipped, Delivered, or Cancelled.";
     }
 }
 
-// 3. Retrieve statistics for the 4 widgets above
-$stat_new = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status = 'pending'")->fetch_assoc()['total'];
-$stat_shipped = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status = 'shipped'")->fetch_assoc()['total'];
-$stat_delivered = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status = 'delivered'")->fetch_assoc()['total'];
+// 3. Retrieve statistics for the 4 widgets above (Using LIKE or standardized casing)
+$stat_new = $conn->query("SELECT COUNT(*) as total FROM orders WHERE LOWER(status) = 'pending'")->fetch_assoc()['total'];
+$stat_shipped = $conn->query("SELECT COUNT(*) as total FROM orders WHERE LOWER(status) = 'shipped'")->fetch_assoc()['total'];
+$stat_delivered = $conn->query("SELECT COUNT(*) as total FROM orders WHERE LOWER(status) = 'delivered'")->fetch_assoc()['total'];
 $stat_total = $conn->query("SELECT COUNT(*) as total FROM orders")->fetch_assoc()['total'];
 
 // 4. Retrieve the list of orders along with customer names
